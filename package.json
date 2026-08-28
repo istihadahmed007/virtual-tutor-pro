@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "prebuild": "npx convex dev --once || true",
     "build": "tsc -b && vite build",
+    "postbuild": "sed -i 's/ crossorigin//g' dist/index.html",
     "lint": "eslint .",
     "format": "prettier --write .",
     "preview": "vite preview"
