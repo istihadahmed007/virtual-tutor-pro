@@ -1,6 +1,7 @@
 import '@vly-ai/integrations';
 import { Toaster } from "@/components/ui/sonner";
 import { RequireAuth } from "@/components/RequireAuth";
+import { Navigation } from "@/components/Navigation";
 import { VlyToolbar } from "../vly-toolbar-readonly.tsx";
 import { ConvexAuthProvider } from "@convex-dev/auth/react";
 import { ConvexReactClient } from "convex/react";
@@ -13,18 +14,30 @@ import "./index.css";
 const Landing = lazy(() => import("./pages/Landing.tsx"));
 const AuthPage = lazy(() => import("./pages/Auth.tsx"));
 const Dashboard = lazy(() => import("./pages/Dashboard.tsx"));
-const ExamPage = lazy(() => import("./pages/ExamPage.tsx"));
-const AiCoachPage = lazy(() => import("./pages/AiCoachPage.tsx"));
-const TutorsPage = lazy(() => import("./pages/TutorsPage.tsx"));
-const ProgressPage = lazy(() => import("./pages/ProgressPage.tsx"));
-const PricingPage = lazy(() => import("./pages/PricingPage.tsx"));
+const TeachersPage = lazy(() => import("./pages/TeachersPage.tsx"));
+const TeacherProfilePage = lazy(() => import("./pages/TeacherProfilePage.tsx"));
+const ClassroomPage = lazy(() => import("./pages/ClassroomPage.tsx"));
+const ClassesPage = lazy(() => import("./pages/ClassesPage.tsx"));
+const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard.tsx"));
+const MessagesPage = lazy(() => import("./pages/MessagesPage.tsx"));
+const CommunityPage = lazy(() => import("./pages/CommunityPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 // Simple loading fallback for route transitions
 function RouteLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center">
-      <div className="animate-pulse text-muted-foreground">Loading...</div>
+    <div className="min-h-screen flex items-center justify-center bg-[#FAFAF8]">
+      <div className="animate-pulse text-slate-400 text-sm">Loading...</div>
+    </div>
+  );
+}
+
+// Wrapper that includes the Navigation for authenticated routes
+function AppShell({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="min-h-screen bg-[#FAFAF8]">
+      <Navigation />
+      {children}
     </div>
   );
 }
@@ -87,8 +100,6 @@ class RootErrorBoundary extends React.Component<
 
 const convex = new ConvexReactClient(import.meta.env.VITE_CONVEX_URL as string);
 
-
-
 function RouteSyncer() {
   const location = useLocation();
   useEffect(() => {
@@ -112,7 +123,6 @@ function RouteSyncer() {
   return null;
 }
 
-
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <RootErrorBoundary>
@@ -124,52 +134,95 @@ createRoot(document.getElementById("root")!).render(
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
             <Routes>
+              {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route
                 path="/auth"
                 element={<AuthPage redirectAfterAuth="/dashboard" />}
               />
+
+              {/* Classroom - No nav overlay */}
+              <Route
+                path="/classroom"
+                element={
+                  <RequireAuth>
+                    <ClassroomPage />
+                  </RequireAuth>
+                }
+              />
+
+              {/* Authenticated Routes with Navigation */}
               <Route
                 path="/dashboard"
                 element={
                   <RequireAuth>
-                    <Dashboard />
+                    <AppShell>
+                      <Dashboard />
+                    </AppShell>
                   </RequireAuth>
                 }
               />
               <Route
-                path="/exam"
+                path="/teachers"
                 element={
                   <RequireAuth>
-                    <ExamPage />
+                    <AppShell>
+                      <TeachersPage />
+                    </AppShell>
                   </RequireAuth>
                 }
               />
               <Route
-                path="/ai-coach"
+                path="/teachers/:id"
                 element={
                   <RequireAuth>
-                    <AiCoachPage />
+                    <AppShell>
+                      <TeacherProfilePage />
+                    </AppShell>
                   </RequireAuth>
                 }
               />
               <Route
-                path="/tutors"
+                path="/classes"
                 element={
                   <RequireAuth>
-                    <TutorsPage />
+                    <AppShell>
+                      <ClassesPage />
+                    </AppShell>
                   </RequireAuth>
                 }
               />
               <Route
-                path="/progress"
+                path="/teacher-dashboard"
                 element={
                   <RequireAuth>
-                    <ProgressPage />
+                    <AppShell>
+                      <TeacherDashboard />
+                    </AppShell>
                   </RequireAuth>
                 }
               />
-              <Route path="/pricing" element={<PricingPage />} />
+              <Route
+                path="/messages"
+                element={
+                  <RequireAuth>
+                    <AppShell>
+                      <MessagesPage />
+                    </AppShell>
+                  </RequireAuth>
+                }
+              />
+              <Route
+                path="/community"
+                element={
+                  <RequireAuth>
+                    <AppShell>
+                      <CommunityPage />
+                    </AppShell>
+                  </RequireAuth>
+                }
+              />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

@@ -1,22 +1,24 @@
 import { motion } from "framer-motion";
 import {
   GraduationCap,
-  Brain,
-  BookOpen,
-  Trophy,
+  Video,
   Users,
   Star,
   ArrowRight,
   CheckCircle,
-  Zap,
-  Target,
+  Search,
+  MessageCircle,
+  BookOpen,
+  Shield,
   Clock,
-  TrendingUp,
+  Zap,
   ChevronRight,
-  Sparkles,
+  Play,
+  Globe,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
+import { teachers, subjects } from "@/lib/data";
 
 const fadeUp = {
   initial: { opacity: 0, y: 30 },
@@ -24,48 +26,38 @@ const fadeUp = {
   transition: { duration: 0.6 },
 };
 
-const stagger = {
-  animate: { transition: { staggerChildren: 0.1 } },
-};
-
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
 
-  const handleCTA = () => {
-    if (isAuthenticated) {
-      navigate("/dashboard");
-    } else {
-      navigate("/auth");
-    }
+  const handleCTA = (path = "/auth") => {
+    navigate(isAuthenticated ? "/dashboard" : path);
   };
 
+  const availableTeachers = teachers.filter((t) => t.isAvailable);
+
   return (
-    <div className="min-h-screen bg-[#F8FAFC] overflow-hidden">
+    <div className="min-h-screen bg-[#FAFAF8] overflow-hidden">
       {/* Navigation */}
-      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-slate-200/60 z-50">
+      <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-stone-200/60 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-600 to-teal-500 flex items-center justify-center shadow-lg shadow-indigo-500/20">
+            <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-md shadow-teal-600/20">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-indigo-700 to-teal-600 bg-clip-text text-transparent">
-                VirtualTutor
+              <span className="text-xl font-bold text-slate-800">
+                Live<span className="text-teal-600">Class</span>
               </span>
-            </div>
-            <div className="hidden md:flex items-center gap-8">
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Features</a>
-              <a href="#subjects" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Subjects</a>
-              <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Pricing</a>
-              <a href="#testimonials" className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors">Reviews</a>
+            </button>
+            <div className="hidden md:flex items-center gap-6">
+              <a href="#teachers" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Teachers</a>
+              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">How It Works</a>
+              <a href="#subjects" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Subjects</a>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={handleCTA}
-                className="px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25 transition-all hover:shadow-xl hover:shadow-indigo-500/30 active:scale-95"
-              >
-                {isAuthenticated ? "Dashboard" : "Get Started Free"}
+              <button onClick={() => handleCTA()} className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg active:scale-95">
+                {isAuthenticated ? "Dashboard" : "Find a Teacher"}
               </button>
             </div>
           </div>
@@ -73,12 +65,10 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-32 overflow-hidden">
-        {/* Background decorations */}
+      <section className="relative pt-32 pb-20 lg:pt-40 lg:pb-28 overflow-hidden">
         <div className="absolute inset-0 overflow-hidden">
-          <div className="absolute -top-40 -right-40 w-96 h-96 bg-indigo-500/5 rounded-full blur-3xl" />
-          <div className="absolute top-1/2 -left-40 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl" />
-          <div className="absolute top-20 left-1/2 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl" />
+          <div className="absolute -top-40 -right-40 w-96 h-96 bg-teal-500/5 rounded-full blur-3xl" />
+          <div className="absolute top-1/2 -left-40 w-96 h-96 bg-amber-500/5 rounded-full blur-3xl" />
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -88,308 +78,235 @@ export default function Landing() {
             transition={{ duration: 0.8 }}
             className="text-center max-w-4xl mx-auto"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 text-xs font-semibold mb-6">
-              <Sparkles className="w-3.5 h-3.5" />
-              AI-Powered Learning Platform for University Admission
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 border border-teal-100 rounded-full text-teal-700 text-xs font-semibold mb-6">
+              <Video className="w-3.5 h-3.5" />
+              Live classes with real teachers
             </div>
             <h1 className="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-slate-900 leading-tight tracking-tight">
-              Your Personal
-              <span className="block bg-gradient-to-r from-indigo-600 via-purple-600 to-teal-500 bg-clip-text text-transparent">
-                AI Study Partner
+              Learn Directly from
+              <span className="block text-teal-600">
+                People Who Know
               </span>
             </h1>
             <p className="mt-6 text-lg sm:text-xl text-slate-500 max-w-2xl mx-auto leading-relaxed">
-              Ace your BUET, Medical & University admission exams with AI-powered tutoring,
-              realistic mock exams, and personalized study plans — in English and Bangla.
+              Book live classes, ask questions in real-time, practice together, and get
+              personalized feedback from expert teachers who care about your success.
             </p>
+
+            {/* Search Bar */}
+            <div className="mt-10 max-w-xl mx-auto">
+              <div className="relative">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
+                <input
+                  type="text"
+                  placeholder="What do you want to learn?"
+                  className="w-full pl-12 pr-32 py-4 bg-white border border-stone-200 rounded-2xl text-slate-900 placeholder:text-slate-400 shadow-lg shadow-stone-200/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 transition-all text-base"
+                  onClick={() => handleCTA("/teachers")}
+                />
+                <button
+                  onClick={() => handleCTA("/teachers")}
+                  className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-sm transition-colors"
+                >
+                  Search
+                </button>
+              </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
+                {subjects.slice(0, 8).map((s) => (
+                  <button
+                    key={s.name}
+                    onClick={() => navigate("/teachers")}
+                    className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-slate-600 hover:border-teal-300 hover:text-teal-700 transition-colors"
+                  >
+                    {s.icon} {s.name}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* CTAs */}
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
               <button
-                onClick={handleCTA}
-                className="group px-8 py-4 bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 text-white font-bold rounded-2xl shadow-xl shadow-indigo-500/25 transition-all hover:shadow-2xl hover:shadow-indigo-500/30 flex items-center gap-2.5 text-base active:scale-95"
+                onClick={() => handleCTA("/teachers")}
+                className="group px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all hover:shadow-2xl flex items-center gap-2.5 text-base active:scale-95"
               >
-                Start Learning Free
+                Find a Teacher
                 <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
               </button>
               <button
-                onClick={() => document.getElementById("features")?.scrollIntoView({ behavior: "smooth" })}
-                className="px-8 py-4 bg-white border-2 border-slate-200 hover:border-indigo-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-indigo-50/50 flex items-center gap-2 text-base"
+                onClick={() => handleCTA("/auth")}
+                className="px-8 py-4 bg-white border-2 border-stone-200 hover:border-teal-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-teal-50/50 flex items-center gap-2 text-base"
               >
-                See How It Works
+                Become a Teacher
               </button>
             </div>
 
-            {/* Social proof */}
+            {/* Social Proof */}
             <div className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-8 text-sm text-slate-500">
               <div className="flex items-center gap-2">
                 <div className="flex -space-x-2">
-                  {["bg-indigo-500", "bg-teal-500", "bg-purple-500", "bg-amber-500"].map((bg, i) => (
+                  {["bg-teal-500", "bg-amber-500", "bg-purple-500", "bg-rose-500"].map((bg, i) => (
                     <div key={i} className={`w-8 h-8 rounded-full ${bg} border-2 border-white flex items-center justify-center text-white text-xs font-bold`}>
-                      {["A", "R", "F", "K"][i]}
+                      {["R", "F", "N", "S"][i]}
                     </div>
                   ))}
                 </div>
-                <span className="font-semibold text-slate-700">2,400+</span> active students
+                <span className="font-semibold text-slate-700">500+</span> teachers
               </div>
               <div className="flex items-center gap-1.5">
                 <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                <span className="font-semibold text-slate-700">4.9/5</span> average rating
+                <span className="font-semibold text-slate-700">4.8/5</span> avg rating
               </div>
               <div className="flex items-center gap-1.5">
-                <CheckCircle className="w-4 h-4 text-emerald-500" />
-                <span className="font-semibold text-slate-700">94%</span> improvement rate
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Hero Visual */}
-          <motion.div
-            initial={{ opacity: 0, y: 60 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.9, delay: 0.3 }}
-            className="mt-16 max-w-5xl mx-auto"
-          >
-            <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-indigo-500/10 border border-slate-200/60">
-              <div className="bg-gradient-to-br from-indigo-600 via-indigo-700 to-teal-600 p-1">
-                <div className="bg-white rounded-[1.35rem] p-6 sm:p-8">
-                  <div className="flex items-center gap-2 mb-6">
-                    <div className="w-3 h-3 rounded-full bg-red-400" />
-                    <div className="w-3 h-3 rounded-full bg-amber-400" />
-                    <div className="w-3 h-3 rounded-full bg-green-400" />
-                    <span className="ml-3 text-xs font-medium text-slate-400">VirtualTutor Dashboard</span>
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                    <div className="bg-gradient-to-br from-indigo-50 to-indigo-100/50 rounded-2xl p-5 border border-indigo-100">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-indigo-500 flex items-center justify-center">
-                          <Target className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500">Exam Countdown</p>
-                          <p className="text-2xl font-bold text-slate-900">14 Days</p>
-                        </div>
-                      </div>
-                      <div className="w-full bg-indigo-200 rounded-full h-2">
-                        <div className="bg-indigo-600 h-2 rounded-full" style={{ width: "72%" }} />
-                      </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-emerald-50 to-emerald-100/50 rounded-2xl p-5 border border-emerald-100">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-emerald-500 flex items-center justify-center">
-                          <TrendingUp className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500">Weekly Accuracy</p>
-                          <p className="text-2xl font-bold text-slate-900">87%</p>
-                        </div>
-                      </div>
-                      <div className="w-full bg-emerald-200 rounded-full h-2">
-                        <div className="bg-emerald-600 h-2 rounded-full" style={{ width: "87%" }} />
-                      </div>
-                    </div>
-                    <div className="bg-gradient-to-br from-amber-50 to-amber-100/50 rounded-2xl p-5 border border-amber-100">
-                      <div className="flex items-center gap-3 mb-3">
-                        <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
-                          <Zap className="w-5 h-5 text-white" />
-                        </div>
-                        <div>
-                          <p className="text-xs text-slate-500">Study Streak</p>
-                          <p className="text-2xl font-bold text-slate-900">14 Days 🔥</p>
-                        </div>
-                      </div>
-                      <div className="w-full bg-amber-200 rounded-full h-2">
-                        <div className="bg-amber-500 h-2 rounded-full" style={{ width: "100%" }} />
-                      </div>
-                    </div>
-                  </div>
-                  <div className="mt-4 grid grid-cols-5 gap-2">
-                    {[92, 78, 85, 65, 95].map((score, i) => (
-                      <div key={i} className="text-center p-3 bg-slate-50 rounded-xl border border-slate-100">
-                        <p className="text-lg font-bold text-slate-900">{score}%</p>
-                        <p className="text-[10px] text-slate-500 mt-0.5">{["Math", "Phy", "Che", "Eng", "Bio"][i]}</p>
-                      </div>
-                    ))}
-                  </div>
-                </div>
+                <Users className="w-4 h-4 text-teal-500" />
+                <span className="font-semibold text-slate-700">5,000+</span> students
               </div>
             </div>
           </motion.div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section id="features" className="py-20 lg:py-28 bg-white">
+      {/* Teachers Available Now */}
+      <section id="teachers" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="flex items-end justify-between mb-10"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-teal-50 border border-teal-100 rounded-full text-teal-700 text-xs font-bold uppercase tracking-wider mb-4">
-              Why VirtualTutor
+            <div>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                Teachers Available Now
+              </h2>
+              <p className="mt-2 text-slate-500">
+                Expert educators ready to help you learn
+              </p>
             </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Everything You Need to{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent">
-                Ace Your Exam
-              </span>
-            </h2>
-            <p className="mt-4 text-lg text-slate-500 max-w-2xl mx-auto">
-              A complete learning ecosystem designed for Bangladeshi students preparing for
-              competitive university admission exams.
-            </p>
+            <button
+              onClick={() => navigate("/teachers")}
+              className="hidden sm:flex items-center gap-1 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
+            >
+              View all teachers <ChevronRight className="w-4 h-4" />
+            </button>
           </motion.div>
 
-          <motion.div
-            variants={stagger}
-            initial="initial"
-            whileInView="animate"
-            viewport={{ once: true }}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-          >
-            {[
-              {
-                icon: Brain,
-                title: "AI Socratic Tutor",
-                desc: "Get step-by-step explanations that guide you to the answer, not just give it. Ask in English or Bangla.",
-                color: "from-indigo-500 to-purple-600",
-                bg: "bg-indigo-50",
-              },
-              {
-                icon: BookOpen,
-                title: "Realistic Mock Exams",
-                desc: "Full-length timed simulations with negative marking, pace tracking, and BUET-style questions.",
-                color: "from-emerald-500 to-teal-600",
-                bg: "bg-emerald-50",
-              },
-              {
-                icon: Users,
-                title: "Expert 1-on-1 Tutors",
-                desc: "Book live sessions with verified tutors from top universities. Get personalized doubt resolution.",
-                color: "from-amber-500 to-orange-600",
-                bg: "bg-amber-50",
-              },
-              {
-                icon: TrendingUp,
-                title: "Smart Progress Tracking",
-                desc: "See mastery per topic, identify weak areas, and get AI-generated study plans tailored to you.",
-                color: "from-blue-500 to-indigo-600",
-                bg: "bg-blue-50",
-              },
-              {
-                icon: Trophy,
-                title: "Mistake Intelligence",
-                desc: "AI categorizes your errors — conceptual, calculation, or careless — and builds targeted drills.",
-                color: "from-rose-500 to-pink-600",
-                bg: "bg-rose-50",
-              },
-              {
-                icon: Clock,
-                title: "Exam Countdown & Goals",
-                desc: "Set your target exam date and daily study goals. Stay on track with streaks and reminders.",
-                color: "from-violet-500 to-purple-600",
-                bg: "bg-violet-50",
-              },
-            ].map((f, i) => (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+            {availableTeachers.map((teacher, i) => (
               <motion.div
-                key={i}
-                variants={fadeUp}
-                className="group relative p-6 bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-200 transition-all hover:shadow-xl hover:shadow-indigo-500/5 cursor-default"
-              >
-                <div className={`w-12 h-12 rounded-xl ${f.bg} flex items-center justify-center mb-4 group-hover:scale-110 transition-transform`}>
-                  <f.icon className={`w-6 h-6 bg-gradient-to-r ${f.color} bg-clip-text`} style={{ color: undefined }} />
-                </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-2">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
-              </motion.div>
-            ))}
-          </motion.div>
-        </div>
-      </section>
-
-      {/* Subjects */}
-      <section id="subjects" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50 to-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 text-xs font-bold uppercase tracking-wider mb-4">
-              Complete Coverage
-            </div>
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Master Every Subject
-            </h2>
-            <p className="mt-4 text-lg text-slate-500">
-              Comprehensive coverage for all university admission subjects
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {[
-              { name: "Mathematics", icon: "📐", color: "from-indigo-500 to-indigo-600", bg: "bg-indigo-50", topics: "50+ topics" },
-              { name: "Physics", icon: "⚡", color: "from-emerald-500 to-emerald-600", bg: "bg-emerald-50", topics: "40+ topics" },
-              { name: "Chemistry", icon: "🧪", color: "from-amber-500 to-amber-600", bg: "bg-amber-50", topics: "35+ topics" },
-              { name: "English", icon: "📖", color: "from-rose-500 to-rose-600", bg: "bg-rose-50", topics: "30+ topics" },
-              { name: "Biology", icon: "🧬", color: "from-teal-500 to-teal-600", bg: "bg-teal-50", topics: "25+ topics" },
-            ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
+                key={teacher.id}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="group relative p-6 bg-white rounded-2xl border border-slate-200/80 hover:border-indigo-200 text-center transition-all hover:shadow-lg hover:shadow-indigo-500/5 cursor-pointer"
+                className="bg-white p-5 rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all cursor-pointer group"
+                onClick={() => navigate(`/teachers/${teacher.id}`)}
               >
-                <div className="text-4xl mb-3">{s.icon}</div>
-                <h3 className="font-bold text-slate-900 text-sm">{s.name}</h3>
-                <p className="text-xs text-slate-400 mt-1">{s.topics}</p>
+                <div className="flex items-start gap-4">
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
+                      {teacher.name.charAt(0)}
+                    </div>
+                    {teacher.isAvailable && (
+                      <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
+                    )}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-bold text-slate-900 truncate">{teacher.name}</h3>
+                      {teacher.isVerified && (
+                        <Shield className="w-3.5 h-3.5 text-teal-500 shrink-0" />
+                      )}
+                    </div>
+                    <p className="text-xs text-slate-500 mt-0.5 truncate">{teacher.title}</p>
+                  </div>
+                </div>
+
+                <p className="text-xs text-slate-500 mt-3 line-clamp-2 leading-relaxed">
+                  {teacher.bio}
+                </p>
+
+                <div className="flex items-center gap-2 mt-3 flex-wrap">
+                  {teacher.subjects.slice(0, 3).map((s) => (
+                    <span key={s} className="px-2 py-0.5 bg-stone-100 text-slate-600 text-[10px] font-medium rounded-full">
+                      {s}
+                    </span>
+                  ))}
+                </div>
+
+                <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-1">
+                      <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
+                      <span className="text-sm font-bold text-slate-900">{teacher.rating}</span>
+                    </div>
+                    <span className="text-xs text-slate-400">{teacher.reviewCount} reviews</span>
+                  </div>
+                  <div className="text-right">
+                    <span className="text-base font-extrabold text-slate-900">৳{teacher.hourlyRate.toLocaleString()}</span>
+                    <span className="text-[10px] text-slate-400 ml-0.5">/hr</span>
+                  </div>
+                </div>
+
+                <button
+                  onClick={(e) => { e.stopPropagation(); navigate(`/teachers/${teacher.id}`); }}
+                  className="w-full mt-3 py-2.5 bg-teal-50 hover:bg-teal-100 text-teal-700 font-semibold text-sm rounded-xl transition-colors flex items-center justify-center gap-1.5"
+                >
+                  View Profile
+                  <ArrowRight className="w-3.5 h-3.5" />
+                </button>
               </motion.div>
             ))}
           </div>
+
+          <button
+            onClick={() => navigate("/teachers")}
+            className="sm:hidden w-full mt-6 py-3 text-sm font-semibold text-teal-600 border border-teal-200 rounded-xl hover:bg-teal-50 transition-colors flex items-center justify-center gap-1"
+          >
+            View all teachers <ChevronRight className="w-4 h-4" />
+          </button>
         </div>
       </section>
 
       {/* How It Works */}
-      <section className="py-20 lg:py-28 bg-white">
+      <section id="how-it-works" className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Three Steps to{" "}
-              <span className="bg-gradient-to-r from-teal-500 to-indigo-600 bg-clip-text text-transparent">
-                Exam Success
-              </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              How LiveClass Works
             </h2>
+            <p className="mt-3 text-slate-500 max-w-lg mx-auto">
+              Meet a teacher → Talk → Practice → Make mistakes → Get feedback → Improve → Come back
+            </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+          <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Take a Diagnostic", desc: "Start with a quick mock exam to identify your strengths and weaknesses across all subjects.", color: "from-indigo-500 to-indigo-600" },
-              { step: "02", title: "Follow Your AI Plan", desc: "Get a personalized study plan with daily tasks, targeted practice, and AI tutor support.", color: "from-teal-500 to-teal-600" },
-              { step: "03", title: "Track & Improve", desc: "Monitor your progress with detailed analytics, fix mistakes, and watch your scores climb.", color: "from-purple-500 to-purple-600" },
+              { step: "1", title: "Find a Teacher", desc: "Browse expert teachers by subject, rating, and availability. Read real reviews from students.", icon: Search, color: "from-teal-500 to-teal-600" },
+              { step: "2", title: "Book a Session", desc: "Choose a time that works. Book 1-on-1, small group, or trial classes. Get instant confirmation.", icon: Clock, color: "from-amber-500 to-amber-600" },
+              { step: "3", title: "Join Live Class", desc: "Connect via video. Ask questions, use the whiteboard, share screens, and interact in real-time.", icon: Video, color: "from-indigo-500 to-indigo-600" },
+              { step: "4", title: "Keep Growing", desc: "Get teacher feedback, AI-powered summaries, homework, and track your progress over time.", icon: Zap, color: "from-rose-500 to-rose-600" },
             ].map((s, i) => (
               <motion.div
                 key={i}
                 initial={{ opacity: 0, y: 20 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ delay: i * 0.15 }}
+                transition={{ delay: i * 0.1 }}
                 className="relative text-center"
               >
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-5 shadow-lg`}>
-                  <span className="text-white font-bold text-lg">{s.step}</span>
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+                  <s.icon className="w-6 h-6 text-white" />
                 </div>
-                <h3 className="text-xl font-bold text-slate-900 mb-3">{s.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed max-w-xs mx-auto">{s.desc}</p>
-                {i < 2 && (
-                  <ChevronRight className="hidden md:block absolute top-6 -right-4 w-6 h-6 text-slate-300" />
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Step {s.step}</span>
+                <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">{s.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
+                {i < 3 && (
+                  <ChevronRight className="hidden md:block absolute top-7 -right-3 w-5 h-5 text-slate-300" />
                 )}
               </motion.div>
             ))}
@@ -397,46 +314,104 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Testimonials */}
-      <section id="testimonials" className="py-20 lg:py-28 bg-gradient-to-b from-slate-50 to-white">
+      {/* Why LiveClass */}
+      <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-14"
           >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Trusted by{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent">
-                2,400+ Students
-              </span>
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Why Students Love LiveClass
             </h2>
           </motion.div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
-              {
-                name: "Tanvir Hasan",
-                role: "BUET CSE Aspirant",
-                text: "VirtualTutor's AI coach helped me understand integration by parts in a way no textbook could. The Socratic method really works — I went from 45% to 89% in math in just 3 weeks.",
-                rating: 5,
-                color: "bg-indigo-500",
-              },
-              {
-                name: "Nusrat Jahan",
-                role: "Medical Admission 2025",
-                text: "The mock exams are incredibly realistic. The timer pressure and negative marking simulate the actual exam environment perfectly. I feel confident going into my medical entrance.",
-                rating: 5,
-                color: "bg-teal-500",
-              },
-              {
-                name: "Arif Chowdhury",
-                role: "Dhaka University A Unit",
-                text: "Booking a 1-on-1 session with Dr. Rafiq was a game-changer. He identified exactly where my physics concepts were weak and gave me a focused plan. Highly recommend!",
-                rating: 5,
-                color: "bg-purple-500",
-              },
+              { icon: Video, title: "Live Video Classes", desc: "Real-time interaction with your teacher. Not pre-recorded videos — actual live learning.", color: "bg-teal-50 text-teal-600" },
+              { icon: MessageCircle, title: "Ask Anything, Anytime", desc: "Raise your hand, ask questions in chat, or unmute and talk directly with your teacher.", color: "bg-amber-50 text-amber-600" },
+              { icon: Shield, title: "Verified Experts", desc: "Every teacher is credential-verified. Learn from BUET graduates, MIT alumni, and industry experts.", color: "bg-indigo-50 text-indigo-600" },
+              { icon: Users, title: "Small Class Sizes", desc: "Intimate learning with 1-8 students. Get the attention you deserve.", color: "bg-rose-50 text-rose-600" },
+              { icon: BookOpen, title: "AI Learning Assistant", desc: "After each class, get AI-generated summaries, practice questions, and homework.", color: "bg-purple-50 text-purple-600" },
+              { icon: Globe, title: "Learn in Your Language", desc: "Teachers available in English, বাংলা, and other languages. Learn the way that works for you.", color: "bg-emerald-50 text-emerald-600" },
+            ].map((f, i) => (
+              <motion.div
+                key={i}
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.08 }}
+                className="p-5 rounded-2xl border border-stone-200/80 hover:shadow-lg hover:shadow-stone-200/50 transition-all"
+              >
+                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-3`}>
+                  <f.icon className="w-5 h-5" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-1.5">{f.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Subjects */}
+      <section id="subjects" className="py-16 lg:py-24 bg-[#FAFAF8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Learn Anything
+            </h2>
+            <p className="mt-3 text-slate-500">
+              From mathematics to programming, find the right teacher for every subject
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+            {subjects.map((s, i) => (
+              <motion.button
+                key={i}
+                initial={{ opacity: 0, scale: 0.95 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                viewport={{ once: true }}
+                transition={{ delay: i * 0.05 }}
+                onClick={() => navigate("/teachers")}
+                className="p-5 bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-lg hover:shadow-teal-500/5 text-center transition-all group"
+              >
+                <div className="text-3xl mb-2">{s.icon}</div>
+                <h3 className="text-sm font-bold text-slate-900">{s.name}</h3>
+                <p className="text-xs text-slate-400 mt-1">{s.count} teachers</p>
+              </motion.button>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials */}
+      <section className="py-16 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-center mb-14"
+          >
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              What Students Say
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
+            {[
+              { name: "Tanvir H.", role: "BUET CSE Aspirant", text: "Dr. Rafiq made calculus finally click for me. His live classes are incredible — I can ask questions in real-time and he explains until I understand. Went from struggling to confident in 3 weeks.", rating: 5, color: "bg-teal-500" },
+              { name: "Nusrat J.", role: "Medical Admission", text: "The live IELTS sessions with Nadia transformed my speaking. She gives instant feedback and pushes you to improve. My score went from 6.0 to 7.5 in just 5 sessions.", rating: 5, color: "bg-amber-500" },
+              { name: "Arif C.", role: "DU A Unit", text: "What makes LiveClass different is the human connection. My physics teacher uses real-world examples that make everything click. It's like having a personal mentor.", rating: 5, color: "bg-indigo-500" },
             ].map((t, i) => (
               <motion.div
                 key={i}
@@ -444,7 +419,7 @@ export default function Landing() {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: i * 0.1 }}
-                className="bg-white p-6 rounded-2xl border border-slate-200/80 hover:shadow-xl hover:shadow-indigo-500/5 transition-all"
+                className="bg-white p-6 rounded-2xl border border-stone-200/80 hover:shadow-xl transition-all"
               >
                 <div className="flex items-center gap-1 mb-4">
                   {Array.from({ length: t.rating }).map((_, j) => (
@@ -467,83 +442,8 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section id="pricing" className="py-20 lg:py-28 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900">
-              Simple, Transparent{" "}
-              <span className="bg-gradient-to-r from-indigo-600 to-teal-500 bg-clip-text text-transparent">
-                Pricing
-              </span>
-            </h2>
-            <p className="mt-4 text-lg text-slate-500">Start free, upgrade when you're ready</p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-            <motion.div
-              initial={{ opacity: 0, x: -20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="bg-white p-8 rounded-2xl border-2 border-slate-200"
-            >
-              <h3 className="text-lg font-bold text-slate-900">Free</h3>
-              <p className="text-4xl font-extrabold text-slate-900 mt-2">৳0</p>
-              <p className="text-sm text-slate-400 mt-1">forever</p>
-              <ul className="mt-6 space-y-3">
-                {["AI Socratic Tutor (5 questions/day)", "Basic mock exams", "Progress tracking", "Mistake book"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2.5 text-sm text-slate-600">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={handleCTA}
-                className="w-full mt-8 py-3 px-6 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-xl transition-all"
-              >
-                Get Started
-              </button>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 20 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              className="relative bg-gradient-to-br from-indigo-600 to-indigo-700 p-8 rounded-2xl text-white shadow-xl shadow-indigo-500/25"
-            >
-              <div className="absolute -top-3 right-6 px-3 py-1 bg-amber-400 text-amber-900 text-xs font-bold rounded-full">
-                Most Popular
-              </div>
-              <h3 className="text-lg font-bold">Pro</h3>
-              <p className="text-4xl font-extrabold mt-2">৳499</p>
-              <p className="text-sm text-indigo-200 mt-1">/month</p>
-              <ul className="mt-6 space-y-3">
-                {["Unlimited AI Tutor access", "All mock exams with analytics", "Expert tutor booking", "Study plan generator", "Priority support", "Exam percentile prediction"].map((f, i) => (
-                  <li key={i} className="flex items-center gap-2.5 text-sm text-indigo-100">
-                    <CheckCircle className="w-4 h-4 text-emerald-300 shrink-0" />
-                    {f}
-                  </li>
-                ))}
-              </ul>
-              <button
-                onClick={handleCTA}
-                className="w-full mt-8 py-3 px-6 bg-white text-indigo-700 font-bold rounded-xl hover:bg-indigo-50 transition-all shadow-lg"
-              >
-                Start Pro Trial
-              </button>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
       {/* Final CTA */}
-      <section className="py-20 lg:py-28 bg-gradient-to-br from-indigo-600 via-indigo-700 to-teal-600">
+      <section className="py-16 lg:py-24 bg-gradient-to-br from-teal-600 to-teal-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
@@ -551,18 +451,17 @@ export default function Landing() {
             viewport={{ once: true }}
           >
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-              Your Dream University Is{" "}
-              <span className="text-amber-300">14 Days Away</span>
+              Your Learning Journey Starts with
+              <span className="text-amber-300"> One Conversation</span>
             </h2>
-            <p className="mt-6 text-lg text-indigo-100 max-w-xl mx-auto">
-              Join thousands of students who transformed their preparation with VirtualTutor.
-              Start your free journey today.
+            <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">
+              Join thousands of students learning from real teachers through live, interactive classes.
             </p>
             <button
-              onClick={handleCTA}
-              className="mt-10 px-10 py-4 bg-white text-indigo-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-indigo-50 flex items-center gap-2.5 mx-auto text-base active:scale-95"
+              onClick={() => handleCTA("/teachers")}
+              className="mt-10 px-10 py-4 bg-white text-teal-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-teal-50 flex items-center gap-2.5 mx-auto text-base active:scale-95"
             >
-              Start Free Today
+              Find Your Teacher
               <ArrowRight className="w-5 h-5" />
             </button>
           </motion.div>
@@ -574,12 +473,12 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-teal-500 flex items-center justify-center">
+              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">VirtualTutor</span>
+              <span className="text-lg font-bold text-white">LiveClass</span>
             </div>
-            <p className="text-sm">© 2025 VirtualTutor. Built for Bangladeshi Students. All rights reserved.</p>
+            <p className="text-sm">© 2025 LiveClass. Learn from real people. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm">
               <a href="#" className="hover:text-white transition-colors">Privacy</a>
               <a href="#" className="hover:text-white transition-colors">Terms</a>
