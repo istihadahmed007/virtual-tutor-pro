@@ -1,0 +1,385 @@
+// Mock data for Virtual Tutor platform
+
+export interface Question {
+  id: number;
+  text: string;
+  options: { id: string; text: string }[];
+  correctAnswer: string;
+  explanation: string;
+  difficulty: "Easy" | "Medium" | "Hard";
+  subject: string;
+  topic: string;
+}
+
+export interface Tutor {
+  id: string;
+  name: string;
+  title: string;
+  subject: string;
+  rating: number;
+  reviewCount: number;
+  yearsExperience: number;
+  hourlyRate: number;
+  bio: string;
+  avatarUrl: string;
+  languages: string[];
+  isAvailable: boolean;
+  badge?: string;
+}
+
+export interface Exam {
+  id: string;
+  title: string;
+  subject: string;
+  totalQuestions: number;
+  durationMinutes: number;
+  difficulty: string;
+  questions: Question[];
+}
+
+export const mockTutors: Tutor[] = [
+  {
+    id: "t1",
+    name: "Dr. Rafiq Hassan",
+    title: "Senior Mathematics Instructor",
+    subject: "Mathematics",
+    rating: 4.9,
+    reviewCount: 312,
+    yearsExperience: 14,
+    hourlyRate: 2500,
+    bio: "Former BUET faculty member with 14 years of experience in advanced mathematics. Specializes in calculus, linear algebra, and analytical geometry for university admission preparation.",
+    avatarUrl: "",
+    languages: ["English", "বাংলা"],
+    isAvailable: true,
+    badge: "Top Rated",
+  },
+  {
+    id: "t2",
+    name: "Farzana Akter",
+    title: "Physics & Engineering Mentor",
+    subject: "Physics",
+    rating: 4.8,
+    reviewCount: 245,
+    yearsExperience: 10,
+    hourlyRate: 2200,
+    bio: "MIT graduate specializing in mechanics, thermodynamics, and electromagnetism. Known for making complex physics concepts intuitive through real-world analogies.",
+    avatarUrl: "",
+    languages: ["English", "বাংলা"],
+    isAvailable: true,
+    badge: "Most Booked",
+  },
+  {
+    id: "t3",
+    name: "Prof. Karim Uddin",
+    title: "Chemistry Expert",
+    subject: "Chemistry",
+    rating: 4.7,
+    reviewCount: 189,
+    yearsExperience: 12,
+    hourlyRate: 2000,
+    bio: "PhD in Organic Chemistry from Dhaka University. Expert in HSC chemistry syllabus and medical admission preparation with a focus on conceptual clarity.",
+    avatarUrl: "",
+    languages: ["English", "বাংলা"],
+    isAvailable: false,
+  },
+  {
+    id: "t4",
+    name: "Nadia Rahman",
+    title: "English Language Coach",
+    subject: "English",
+    rating: 4.9,
+    reviewCount: 178,
+    yearsExperience: 8,
+    hourlyRate: 1800,
+    bio: "IELTS 8.5 scorer with experience training students for university admission English sections. Specializes in reading comprehension, grammar, and academic writing.",
+    avatarUrl: "",
+    languages: ["English", "বাংলা"],
+    isAvailable: true,
+  },
+  {
+    id: "t5",
+    name: "Tanvir Ahmed",
+    title: "Biology & Medical Prep",
+    subject: "Biology",
+    rating: 4.6,
+    reviewCount: 156,
+    yearsExperience: 7,
+    hourlyRate: 1900,
+    bio: "MBBS from Bangabandhu Sheikh Mujib Medical University. Expert in biology for medical admission with a focus on genetics, ecology, and human physiology.",
+    avatarUrl: "",
+    languages: ["English", "বাংলা"],
+    isAvailable: true,
+  },
+];
+
+export const mathQuestions: Question[] = [
+  {
+    id: 1,
+    text: "Find the value of: lim(x→0) (sin 3x) / (2x)",
+    options: [
+      { id: "A", text: "3/2" },
+      { id: "B", text: "2/3" },
+      { id: "C", text: "1" },
+      { id: "D", text: "0" },
+    ],
+    correctAnswer: "A",
+    explanation: "Using the standard limit lim(x→0) sin(x)/x = 1, we rewrite as (3/2) · (sin 3x)/(3x) → (3/2)·1 = 3/2",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Limits",
+  },
+  {
+    id: 2,
+    text: "If ∫ 2x·e^(x²) dx, what is the integral?",
+    options: [
+      { id: "A", text: "e^(x²) + C" },
+      { id: "B", text: "x²·e^(x²) + C" },
+      { id: "C", text: "2e^(x²) + C" },
+      { id: "D", text: "e^(2x) + C" },
+    ],
+    correctAnswer: "A",
+    explanation: "Let u = x², then du = 2x dx. So ∫ 2x·e^(x²) dx = ∫ e^u du = e^u + C = e^(x²) + C",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Integration",
+  },
+  {
+    id: 3,
+    text: "What is the determinant of the matrix [[3, 7], [2, 5]]?",
+    options: [
+      { id: "A", text: "1" },
+      { id: "B", text: "11" },
+      { id: "C", text: "-1" },
+      { id: "D", text: "31" },
+    ],
+    correctAnswer: "A",
+    explanation: "det = (3)(5) - (7)(2) = 15 - 14 = 1",
+    difficulty: "Easy",
+    subject: "Mathematics",
+    topic: "Matrix Algebra",
+  },
+  {
+    id: 4,
+    text: "Find the derivative of y = ln(sin x).",
+    options: [
+      { id: "A", text: "cos x / sin x" },
+      { id: "B", text: "sin x / cos x" },
+      { id: "C", text: "1 / sin x" },
+      { id: "D", text: "tan x" },
+    ],
+    correctAnswer: "A",
+    explanation: "By the chain rule: d/dx [ln(sin x)] = (1/sin x) · cos x = cos x / sin x = cot x",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Differentiation",
+  },
+  {
+    id: 5,
+    text: "The sum of the series 1 + 1/3 + 1/9 + 1/27 + ... equals:",
+    options: [
+      { id: "A", text: "3/2" },
+      { id: "B", text: "2" },
+      { id: "C", text: "3" },
+      { id: "D", text: "∞" },
+    ],
+    correctAnswer: "A",
+    explanation: "This is a geometric series with a = 1, r = 1/3. Sum = a/(1-r) = 1/(1-1/3) = 1/(2/3) = 3/2",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Series & Sequences",
+  },
+  {
+    id: 6,
+    text: "What is the value of d/dx [x³ · e^x]?",
+    options: [
+      { id: "A", text: "e^x(x³ + 3x²)" },
+      { id: "B", text: "3x² · e^x" },
+      { id: "C", text: "x³ · e^x" },
+      { id: "D", text: "e^x(3x² + x³)" },
+    ],
+    correctAnswer: "A",
+    explanation: "Using product rule: d/dx[x³·e^x] = 3x²·e^x + x³·e^x = e^x(x³ + 3x²)",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Differentiation",
+  },
+  {
+    id: 7,
+    text: "If z = (1+i)/(1-i), what is the modulus |z|?",
+    options: [
+      { id: "A", text: "1" },
+      { id: "B", text: "√2" },
+      { id: "C", text: "2" },
+      { id: "D", text: "0" },
+    ],
+    correctAnswer: "A",
+    explanation: "z = (1+i)/(1-i) · (1+i)/(1+i) = (1+2i+i²)/(1+1) = (1+2i-1)/2 = 2i/2 = i. So |z| = |i| = 1",
+    difficulty: "Hard",
+    subject: "Mathematics",
+    topic: "Complex Numbers",
+  },
+  {
+    id: 8,
+    text: "The area enclosed between y = x² and y = x is:",
+    options: [
+      { id: "A", text: "1/6" },
+      { id: "B", text: "1/3" },
+      { id: "C", text: "1/2" },
+      { id: "D", text: "2/3" },
+    ],
+    correctAnswer: "A",
+    explanation: "Intersection at x=0 and x=1. Area = ∫₀¹ (x - x²) dx = [x²/2 - x³/3]₀¹ = 1/2 - 1/3 = 1/6",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Integration",
+  },
+  {
+    id: 9,
+    text: "What is the rank of the matrix [[1, 2, 3], [4, 5, 6], [7, 8, 9]]?",
+    options: [
+      { id: "A", text: "2" },
+      { id: "B", text: "3" },
+      { id: "C", text: "1" },
+      { id: "D", text: "0" },
+    ],
+    correctAnswer: "A",
+    explanation: "The third row = Row1 + 2·Row2 - 2·Row1 = 7,8,9 which is linearly dependent. det = 0, but first two rows are independent, so rank = 2.",
+    difficulty: "Hard",
+    subject: "Mathematics",
+    topic: "Matrix Algebra",
+  },
+  {
+    id: 10,
+    text: "Evaluate: ∫₀^(π/2) cos²x dx",
+    options: [
+      { id: "A", text: "π/4" },
+      { id: "B", text: "π/2" },
+      { id: "C", text: "1" },
+      { id: "D", text: "0" },
+    ],
+    correctAnswer: "A",
+    explanation: "Using cos²x = (1 + cos2x)/2: ∫₀^(π/2) (1+cos2x)/2 dx = [x/2 + sin2x/4]₀^(π/2) = π/4 + 0 = π/4",
+    difficulty: "Medium",
+    subject: "Mathematics",
+    topic: "Integration",
+  },
+];
+
+export const physicsQuestions: Question[] = [
+  {
+    id: 11,
+    text: "A ball is thrown vertically upward with velocity 20 m/s. What is the maximum height? (g = 10 m/s²)",
+    options: [
+      { id: "A", text: "20 m" },
+      { id: "B", text: "40 m" },
+      { id: "C", text: "10 m" },
+      { id: "D", text: "30 m" },
+    ],
+    correctAnswer: "A",
+    explanation: "v² = u² - 2gh. At max height, v=0. 0 = 400 - 20h → h = 20m",
+    difficulty: "Easy",
+    subject: "Physics",
+    topic: "Kinematics",
+  },
+  {
+    id: 12,
+    text: "The work done in moving a charge of 5C across a potential difference of 10V is:",
+    options: [
+      { id: "A", text: "50 J" },
+      { id: "B", text: "2 J" },
+      { id: "C", text: "0.5 J" },
+      { id: "D", text: "15 J" },
+    ],
+    correctAnswer: "A",
+    explanation: "W = qV = 5 × 10 = 50 J",
+    difficulty: "Easy",
+    subject: "Physics",
+    topic: "Electrostatics",
+  },
+  {
+    id: 13,
+    text: "A spring stretches by 4 cm under a 2N force. What is the spring constant?",
+    options: [
+      { id: "A", text: "50 N/m" },
+      { id: "B", text: "8 N/m" },
+      { id: "C", text: "200 N/m" },
+      { id: "D", text: "0.5 N/m" },
+    ],
+    correctAnswer: "A",
+    explanation: "F = kx → k = F/x = 2/0.04 = 50 N/m",
+    difficulty: "Easy",
+    subject: "Physics",
+    topic: "Mechanics",
+  },
+  {
+    id: 14,
+    text: "What is the frequency of a wave with wavelength 0.5m traveling at 340 m/s?",
+    options: [
+      { id: "A", text: "680 Hz" },
+      { id: "B", text: "170 Hz" },
+      { id: "C", text: "340 Hz" },
+      { id: "D", text: "1360 Hz" },
+    ],
+    correctAnswer: "A",
+    explanation: "v = fλ → f = v/λ = 340/0.5 = 680 Hz",
+    difficulty: "Easy",
+    subject: "Physics",
+    topic: "Waves",
+  },
+  {
+    id: 15,
+    text: "An ideal gas at 27°C is heated to 127°C at constant volume. The pressure becomes:",
+    options: [
+      { id: "A", text: "4/3 times original" },
+      { id: "B", text: "3/4 times original" },
+      { id: "C", text: "2 times original" },
+      { id: "D", text: "3/2 times original" },
+    ],
+    correctAnswer: "A",
+    explanation: "At constant V: P₁/T₁ = P₂/T₂. T₁ = 300K, T₂ = 400K. P₂/P₁ = 400/300 = 4/3",
+    difficulty: "Medium",
+    subject: "Physics",
+    topic: "Thermodynamics",
+  },
+];
+
+export function generateExam(questions: Question[], title: string, subject: string): Exam {
+  return {
+    id: `exam_${Date.now()}`,
+    title,
+    subject,
+    totalQuestions: questions.length,
+    durationMinutes: subject === "Mathematics" ? 60 : 45,
+    difficulty: "Mixed",
+    questions,
+  };
+}
+
+export const subjects = [
+  { name: "Mathematics", icon: "📐", color: "#4F46E5", questionsCount: 10, topics: ["Calculus", "Integration", "Matrix Algebra", "Complex Numbers", "Series"] },
+  { name: "Physics", icon: "⚡", color: "#059669", questionsCount: 5, topics: ["Kinematics", "Mechanics", "Electrostatics", "Waves", "Thermodynamics"] },
+  { name: "Chemistry", icon: "🧪", color: "#D97706", questionsCount: 0, topics: ["Organic", "Inorganic", "Physical Chemistry"] },
+  { name: "English", icon: "📖", color: "#DC2626", questionsCount: 0, topics: ["Grammar", "Reading Comprehension", "Vocabulary"] },
+  { name: "Biology", icon: "🧬", color: "#16A34A", questionsCount: 0, topics: ["Genetics", "Ecology", "Physiology"] },
+];
+
+export const studyTopics = [
+  { subject: "Mathematics", topic: "Integration by Parts", mastery: 72, lastPracticed: "2 hours ago" },
+  { subject: "Mathematics", topic: "Matrix Determinants", mastery: 85, lastPracticed: "1 day ago" },
+  { subject: "Mathematics", topic: "Complex Numbers", mastery: 45, lastPracticed: "3 days ago" },
+  { subject: "Physics", topic: "Kinematics", mastery: 90, lastPracticed: "5 hours ago" },
+  { subject: "Physics", topic: "Thermodynamics", mastery: 60, lastPracticed: "2 days ago" },
+  { subject: "Mathematics", topic: "Differentiation", mastery: 78, lastPracticed: "1 day ago" },
+  { subject: "Mathematics", topic: "Limits & Series", mastery: 68, lastPracticed: "4 days ago" },
+  { subject: "Physics", topic: "Waves & Optics", mastery: 55, lastPracticed: "5 days ago" },
+];
+
+export const weeklyProgress = [
+  { day: "Mon", questions: 25, correct: 20, hours: 2.5 },
+  { day: "Tue", questions: 30, correct: 22, hours: 3.0 },
+  { day: "Wed", questions: 15, correct: 12, hours: 1.5 },
+  { day: "Thu", questions: 40, correct: 35, hours: 4.0 },
+  { day: "Fri", questions: 20, correct: 18, hours: 2.0 },
+  { day: "Sat", questions: 50, correct: 42, hours: 5.0 },
+  { day: "Sun", questions: 35, correct: 30, hours: 3.5 },
+];
