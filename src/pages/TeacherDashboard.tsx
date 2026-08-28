@@ -1,6 +1,9 @@
+import { useQuery } from "convex/react";
+import { api } from "@/convex/_generated/api";
+import { useAuth } from "@/hooks/use-auth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { liveSessions } from "@/lib/data";
+import { EmptyState } from "@/components/EmptyState";
 import {
   LayoutDashboard,
   LogOut,
@@ -17,8 +20,18 @@ import {
 import { useNavigate } from "react-router";
 
 export default function TeacherDashboard() {
+  const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const mySessions = liveSessions.filter((s) => s.status === "scheduled").slice(0, 4);
+  const sessions = useQuery(api.sessions.listByTeacher);
+  const teacherProfile = useQuery(api.teachers.get, { teacherId: user?._id || "" });
+  const bookings = useQuery(api.bookings.listByTeacher);
+
+  const sessionList = sessions ?? [];
+  const bookingList = bookings ?? [];
+  const upcomingSessions = sessionList
+    .filter((s) => s.status === "scheduled" && s.scheduledAt > Date.now())
+    .sort((a, b) => a.scheduledAt - b.scheduledAt)
+    .slice(0, 4);
 
   return (
     <main className="min-h-screen bg-[#FAFAF8]">
@@ -37,7 +50,7 @@ export default function TeacherDashboard() {
             <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2" size="sm">
               <Plus className="w-4 h-4" /> Create Class
             </Button>
-            <Button variant="outline" size="sm" className="gap-2" onClick={() => navigate("/")}>
+            <Button variant="outline" size="sm" className="gap-2" onClick={() => { signOut(); navigate("/"); }}>
               <LogOut className="w-4 h-4" /> Sign out
             </Button>
           </div>
@@ -45,13 +58,21 @@ export default function TeacherDashboard() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-8">
+        {/* Verification Status */}
+        {teacherProfile && !teacherProfile.isVerified && (
+          <div className="bg-amber-50 border border-amber-200 rounded-2xl p-5 mb-6">
+            <p className="text-sm font-bold text-amber-800">Your profile is under review</p>
+            <p className="text-xs text-amber-600 mt-1">Our team is reviewing your credentials. You'll be notified once verified.</p>
+          </div>
+        )}
+
         {/* Stats */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
           {[
-            { label: "Today's Classes", value: "3", icon: Video, color: "text-teal-500", bg: "bg-teal-50" },
-            { label: "This Week's Earnings", value: "৳45,000", icon: DollarSign, color: "text-emerald-500", bg: "bg-emerald-50" },
-            { label: "Total Students", value: "480", icon: Users, color: "text-indigo-500", bg: "bg-indigo-50" },
-            { label: "Avg Rating", value: "4.9", icon: Star, color: "text-amber-500", bg: "bg-amber-50" },
+            { label: "Total Sessions", value: sessionList.length.toString(), icon: Video, color: "text-teal-500", bg: "bg-teal-50" },
+            { label: "Total Bookings", value: bookingList.length.toString(), icon: DollarSign, color: "text-emerald-500", bg: "bg-emerald-50" },
+            { label: "Students", value: teacherProfile?.totalStudents?.toString() || "0", icon: Users, color: "text-indigo-500", bg: "bg-indigo-50" },
+            { label: "Rating", value: teacherProfile?.rating?.toString() || "New", icon: Star, color: "text-amber-500", bg: "bg-amber-50" },
           ].map((stat, i) => (
             <Card key={i} className="border-stone-200/80">
               <CardContent className="p-4">
@@ -75,112 +96,102 @@ export default function TeacherDashboard() {
             <Card className="border-stone-200/80">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Calendar className="w-4 h-4 text-teal-500" />
-                  Today's Classes
+                  <Calendar className="w-4 h-4 text-teal-500" /> Your Sessions
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {mySessions.map((session) => {
-                    const date = new Date(session.scheduledAt);
-                    return (
-                      <div key={session.id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white shrink-0">
-                          <Video className="w-5 h-5" />
+                {upcomingSessions.length === 0 ? (
+                  <EmptyState icon={Video} title="No upcoming sessions" description="Create a live session to start teaching students." actionLabel="Create Session" />
+                ) : (
+                  <div className="space-y-3">
+                    {upcomingSessions.map((session) => {
+                      const date = new Date(session.scheduledAt);
+                      return (
+                        <div key={session._id} className="flex items-center gap-4 p-4 bg-stone-50 rounded-xl">
+                          <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white shrink-0">
+                            <Video className="w-5 h-5" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-bold text-slate-900 truncate">{session.title}</p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              {session.enrolledCount}/{session.maxStudents} students • {session.durationMinutes}min
+                            </p>
+                          </div>
+                          <div className="text-right shrink-0">
+                            <p className="text-xs font-semibold text-slate-900">
+                              {date.toLocaleDateString("en-US", { month: "short", day: "numeric" })}
+                            </p>
+                            <p className="text-xs text-slate-400">
+                              {date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
+                            </p>
+                          </div>
+                          <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
+                            onClick={() => navigate(`/classroom?session=${session._id}`)}>
+                            <Play className="w-3.5 h-3.5" /> Start
+                          </Button>
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-sm font-bold text-slate-900 truncate">{session.title}</p>
-                          <p className="text-xs text-slate-500 mt-0.5">
-                            {session.enrolledCount}/{session.maxStudents} students • {session.durationMinutes}min
-                          </p>
-                        </div>
-                        <div className="text-right shrink-0">
-                          <p className="text-xs font-semibold text-slate-900">
-                            {date.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit" })}
-                          </p>
-                        </div>
-                        <Button
-                          size="sm"
-                          className="bg-teal-600 hover:bg-teal-700 text-white shrink-0"
-                          onClick={() => navigate(`/classroom?title=${encodeURIComponent(session.title)}&teacher=You`)}
-                        >
-                          <Play className="w-3.5 h-3.5" /> Start
-                        </Button>
-                      </div>
-                    );
-                  })}
-                </div>
+                      );
+                    })}
+                  </div>
+                )}
               </CardContent>
             </Card>
 
-            {/* Recent Students */}
+            {/* Pending Bookings */}
             <Card className="border-stone-200/80">
               <CardHeader>
                 <CardTitle className="text-base flex items-center gap-2">
-                  <Users className="w-4 h-4 text-indigo-500" />
-                  Recent Students
+                  <MessageCircle className="w-4 h-4 text-indigo-500" /> Pending Bookings
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-3">
-                  {["Tanvir H.", "Nusrat J.", "Arif C.", "Sabrina M.", "Imran K."].map((name, i) => (
-                    <div key={i} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
-                      <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs">
-                        {name.charAt(0)}
+                {bookingList.filter((b) => b.status === "pending").length === 0 ? (
+                  <EmptyState icon={MessageCircle} title="No pending bookings" description="Booking requests from students will appear here." />
+                ) : (
+                  <div className="space-y-3">
+                    {bookingList.filter((b) => b.status === "pending").slice(0, 5).map((booking) => (
+                      <div key={booking._id} className="flex items-center gap-3 p-3 bg-stone-50 rounded-xl">
+                        <div className="w-9 h-9 rounded-full bg-slate-200 flex items-center justify-center text-slate-600 font-bold text-xs">
+                          {booking.studentName.charAt(0)}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-sm font-semibold text-slate-900">{booking.studentName}</p>
+                          <p className="text-xs text-slate-400">{booking.subject} • {booking.date} • {booking.timeSlot}</p>
+                        </div>
+                        <Button size="sm" className="bg-emerald-500 hover:bg-emerald-600 text-white text-xs">Accept</Button>
                       </div>
-                      <div className="flex-1">
-                        <p className="text-sm font-semibold text-slate-900">{name}</p>
-                        <p className="text-xs text-slate-400">{3 + i} sessions completed</p>
-                      </div>
-                      <Button variant="ghost" size="sm">
-                        <MessageCircle className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
               </CardContent>
             </Card>
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Availability */}
             <Card className="border-stone-200/80">
               <CardHeader>
-                <CardTitle className="text-sm">Weekly Availability</CardTitle>
+                <CardTitle className="text-sm">Profile Status</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="space-y-2">
-                  {["Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, i) => (
-                    <div key={day} className="flex items-center justify-between text-sm">
-                      <span className="text-slate-500 font-medium w-8">{day}</span>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${i < 5 ? "bg-emerald-50 text-emerald-700" : "bg-stone-100 text-slate-400"}`}>
-                        {i < 5 ? "9:00 AM - 5:00 PM" : "Unavailable"}
+                {teacherProfile ? (
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500">Verification</span>
+                      <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${teacherProfile.isVerified ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                        {teacherProfile.isVerified ? "Verified" : "Under Review"}
                       </span>
                     </div>
-                  ))}
-                </div>
-                <Button variant="outline" className="w-full mt-4 text-xs" size="sm">Edit Availability</Button>
-              </CardContent>
-            </Card>
-
-            {/* Pending */}
-            <Card className="border-stone-200/80">
-              <CardHeader>
-                <CardTitle className="text-sm">Pending Actions</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {[
-                    { text: "2 assignments to review", color: "bg-amber-50 text-amber-700 border-amber-100" },
-                    { text: "1 new booking request", color: "bg-indigo-50 text-indigo-700 border-indigo-100" },
-                    { text: "3 student messages", color: "bg-teal-50 text-teal-700 border-teal-100" },
-                  ].map((item, i) => (
-                    <div key={i} className={`p-3 rounded-xl border text-xs font-medium ${item.color}`}>
-                      {item.text}
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="text-slate-500">Available</span>
+                      <span className={`px-2 py-0.5 text-xs font-bold rounded-full ${teacherProfile.isAvailable ? "bg-teal-50 text-teal-700" : "bg-stone-100 text-slate-500"}`}>
+                        {teacherProfile.isAvailable ? "Yes" : "No"}
+                      </span>
                     </div>
-                  ))}
-                </div>
+                  </div>
+                ) : (
+                  <EmptyState icon={Users} title="Complete your profile" description="Set up your teaching profile to start getting students." />
+                )}
               </CardContent>
             </Card>
           </div>
