@@ -1,8 +1,11 @@
 import { useState, useMemo } from "react";
+import { motion } from "framer-motion";
 import { useQuery } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { Button } from "@/components/ui/button";
 import { EmptyState } from "@/components/EmptyState";
+import { LazyImage } from "@/components/images/LazyImage";
+import { TEACHER_DISCOVERY_BANNER } from "@/lib/images";
 import { subjects } from "@/lib/data";
 import {
   ArrowLeft,
@@ -73,12 +76,21 @@ export default function TeachersPage() {
       <div className="bg-white border-b border-stone-200/60">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex items-center gap-3 mb-6">
-            <Button variant="ghost" size="sm" onClick={() => navigate("/")} className="gap-1.5">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/")}
+              className="gap-1.5"
+            >
               <ArrowLeft className="w-4 h-4" /> Home
             </Button>
           </div>
-          <h1 className="text-3xl font-extrabold text-slate-900">Find a Teacher</h1>
-          <p className="text-slate-500 mt-2">Browse expert teachers and book live sessions</p>
+          <h1 className="text-3xl font-extrabold text-slate-900">
+            Find a Teacher
+          </h1>
+          <p className="text-slate-500 mt-2">
+            Browse expert teachers and book live sessions
+          </p>
 
           <div className="mt-6 flex gap-3">
             <div className="relative flex-1">
@@ -98,7 +110,9 @@ export default function TeachersPage() {
             >
               <SlidersHorizontal className="w-4 h-4" />
               Filters
-              {hasFilters && <span className="w-2 h-2 bg-teal-500 rounded-full" />}
+              {hasFilters && (
+                <span className="w-2 h-2 bg-teal-500 rounded-full" />
+              )}
             </Button>
           </div>
 
@@ -107,33 +121,71 @@ export default function TeachersPage() {
               <div className="flex items-center justify-between mb-3">
                 <h3 className="text-sm font-bold text-slate-900">Filters</h3>
                 {hasFilters && (
-                  <button onClick={clearFilters} className="text-xs text-teal-600 font-medium hover:text-teal-700">Clear all</button>
+                  <button
+                    onClick={clearFilters}
+                    className="text-xs text-teal-600 font-medium hover:text-teal-700"
+                  >
+                    Clear all
+                  </button>
                 )}
               </div>
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Subject</label>
-                  <select value={selectedSubject} onChange={(e) => setSelectedSubject(e.target.value)} className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                    Subject
+                  </label>
+                  <select
+                    value={selectedSubject}
+                    onChange={(e) => setSelectedSubject(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
                     <option value="">All subjects</option>
-                    {allSubjects.map((s) => <option key={s} value={s}>{s}</option>)}
+                    {allSubjects.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Language</label>
-                  <select value={selectedLanguage} onChange={(e) => setSelectedLanguage(e.target.value)} className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20">
+                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                    Language
+                  </label>
+                  <select
+                    value={selectedLanguage}
+                    onChange={(e) => setSelectedLanguage(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
                     <option value="">All languages</option>
-                    {allLanguages.map((l) => <option key={l} value={l}>{l}</option>)}
+                    {allLanguages.map((l) => (
+                      <option key={l} value={l}>
+                        {l}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div className="flex items-end">
-                  <button onClick={() => setShowAvailableOnly(!showAvailableOnly)} className={`w-full px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${showAvailableOnly ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white border-stone-200 text-slate-600 hover:bg-stone-50"}`}>
+                  <button
+                    onClick={() => setShowAvailableOnly(!showAvailableOnly)}
+                    className={`w-full px-3 py-2 rounded-lg text-sm font-medium border transition-colors ${showAvailableOnly ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white border-stone-200 text-slate-600 hover:bg-stone-50"}`}
+                  >
                     {showAvailableOnly ? "✓ " : ""}Available Now
                   </button>
                 </div>
                 <div>
-                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">Sort by</label>
-                  <select value={sortBy} onChange={(e) => setSortBy(e.target.value)} className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20">
-                    {sortOptions.map((o) => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  <label className="text-xs font-semibold text-slate-600 mb-1.5 block">
+                    Sort by
+                  </label>
+                  <select
+                    value={sortBy}
+                    onChange={(e) => setSortBy(e.target.value)}
+                    className="w-full px-3 py-2 bg-white border border-stone-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-teal-500/20"
+                  >
+                    {sortOptions.map((o) => (
+                      <option key={o.value} value={o.value}>
+                        {o.label}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
@@ -142,11 +194,43 @@ export default function TeachersPage() {
         </div>
       </div>
 
+      {/* Visual banner */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="relative overflow-hidden rounded-2xl h-32 sm:h-40"
+        >
+          <LazyImage
+            src={TEACHER_DISCOVERY_BANNER}
+            alt="Diverse educators in various teaching environments — home studios, classrooms, and offices"
+            aspectRatio="3/1"
+            objectFit="cover"
+            className="w-full h-full"
+            wrapperClassName="w-full h-full rounded-2xl"
+            priority
+          />
+          <div className="absolute inset-0 bg-gradient-to-r from-teal-900/70 via-teal-900/40 to-transparent flex items-center">
+            <div className="px-8">
+              <h2 className="text-xl sm:text-2xl font-extrabold text-white">
+                Find Your Perfect Teacher
+              </h2>
+              <p className="text-sm text-teal-100 mt-1">
+                Expert educators ready to help you learn
+              </p>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
         {isLoading ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-2xl border border-stone-200 p-5 animate-pulse">
+              <div
+                key={i}
+                className="bg-white rounded-2xl border border-stone-200 p-5 animate-pulse"
+              >
                 <div className="flex items-start gap-4">
                   <div className="w-16 h-16 rounded-2xl bg-stone-200" />
                   <div className="flex-1 space-y-2">
@@ -164,7 +248,11 @@ export default function TeachersPage() {
         ) : filtered.length === 0 ? (
           <EmptyState
             icon={Users}
-            title={hasFilters ? "No teachers match your filters" : "No teachers available yet"}
+            title={
+              hasFilters
+                ? "No teachers match your filters"
+                : "No teachers available yet"
+            }
             description={
               hasFilters
                 ? "Try adjusting your filters or search terms to find teachers."
@@ -176,11 +264,18 @@ export default function TeachersPage() {
         ) : (
           <>
             <p className="text-sm text-slate-500 mb-6">
-              <span className="font-bold text-slate-900">{filtered.length}</span> teachers found
+              <span className="font-bold text-slate-900">
+                {filtered.length}
+              </span>{" "}
+              teachers found
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
               {filtered.map((teacher) => (
-                <TeacherCard key={teacher._id} teacher={teacher} navigate={navigate} />
+                <TeacherCard
+                  key={teacher._id}
+                  teacher={teacher}
+                  navigate={navigate}
+                />
               ))}
             </div>
           </>
@@ -190,7 +285,13 @@ export default function TeachersPage() {
   );
 }
 
-function TeacherCard({ teacher, navigate }: { teacher: any; navigate: ReturnType<typeof useNavigate> }) {
+function TeacherCard({
+  teacher,
+  navigate,
+}: {
+  teacher: any;
+  navigate: ReturnType<typeof useNavigate>;
+}) {
   return (
     <div
       className="bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all cursor-pointer group overflow-hidden"
@@ -208,8 +309,12 @@ function TeacherCard({ teacher, navigate }: { teacher: any; navigate: ReturnType
           </div>
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-1.5">
-              <h3 className="text-base font-bold text-slate-900 truncate">{teacher.name}</h3>
-              {teacher.isVerified && <Shield className="w-4 h-4 text-teal-500 shrink-0" />}
+              <h3 className="text-base font-bold text-slate-900 truncate">
+                {teacher.name}
+              </h3>
+              {teacher.isVerified && (
+                <Shield className="w-4 h-4 text-teal-500 shrink-0" />
+              )}
             </div>
             <p className="text-xs text-slate-500 mt-0.5">{teacher.title}</p>
             <div className="flex items-center gap-2 mt-2">
@@ -217,9 +322,13 @@ function TeacherCard({ teacher, navigate }: { teacher: any; navigate: ReturnType
                 <>
                   <div className="flex items-center gap-1">
                     <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                    <span className="text-sm font-bold text-slate-900">{teacher.rating}</span>
+                    <span className="text-sm font-bold text-slate-900">
+                      {teacher.rating}
+                    </span>
                   </div>
-                  <span className="text-xs text-slate-400">({teacher.reviewCount} reviews)</span>
+                  <span className="text-xs text-slate-400">
+                    ({teacher.reviewCount} reviews)
+                  </span>
                   <span className="text-slate-200">·</span>
                 </>
               )}
@@ -230,21 +339,42 @@ function TeacherCard({ teacher, navigate }: { teacher: any; navigate: ReturnType
             </div>
           </div>
         </div>
-        <p className="text-xs text-slate-500 mt-3 line-clamp-2 leading-relaxed">{teacher.bio}</p>
+        <p className="text-xs text-slate-500 mt-3 line-clamp-2 leading-relaxed">
+          {teacher.bio}
+        </p>
         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
           {teacher.subjects.map((s: string) => (
-            <span key={s} className="px-2 py-0.5 bg-stone-100 text-slate-600 text-[10px] font-medium rounded-full">{s}</span>
+            <span
+              key={s}
+              className="px-2 py-0.5 bg-stone-100 text-slate-600 text-[10px] font-medium rounded-full"
+            >
+              {s}
+            </span>
           ))}
           {teacher.languages.map((l: string) => (
-            <span key={l} className="px-2 py-0.5 bg-sky-50 text-sky-600 text-[10px] font-medium rounded-full">{l}</span>
+            <span
+              key={l}
+              className="px-2 py-0.5 bg-sky-50 text-sky-600 text-[10px] font-medium rounded-full"
+            >
+              {l}
+            </span>
           ))}
         </div>
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
           <div>
-            <span className="text-xl font-extrabold text-slate-900">৳{teacher.hourlyRate.toLocaleString()}</span>
+            <span className="text-xl font-extrabold text-slate-900">
+              ৳{teacher.hourlyRate.toLocaleString()}
+            </span>
             <span className="text-xs text-slate-400 ml-0.5">/hour</span>
           </div>
-          <Button size="sm" className="bg-teal-600 hover:bg-teal-700 text-white" onClick={(e) => { e.stopPropagation(); navigate(`/teachers/${teacher.userId}`); }}>
+          <Button
+            size="sm"
+            className="bg-teal-600 hover:bg-teal-700 text-white"
+            onClick={(e) => {
+              e.stopPropagation();
+              navigate(`/teachers/${teacher.userId}`);
+            }}
+          >
             Book Session
           </Button>
         </div>
