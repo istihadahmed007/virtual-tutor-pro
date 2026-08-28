@@ -1,14 +1,15 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return null;
     return await ctx.db
       .query("studentProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .first();
   },
 });
@@ -26,12 +27,12 @@ export const upsert = mutation({
     bio: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     const existing = await ctx.db
       .query("studentProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .first();
 
     const fields = [
@@ -46,7 +47,7 @@ export const upsert = mutation({
       await ctx.db.patch(existing._id, { ...args, profileCompletionPct });
     } else {
       await ctx.db.insert("studentProfiles", {
-        userId,
+        userId: userId as string,
         ...args,
         profileCompletionPct,
       });

@@ -1,14 +1,15 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
 export const listConversations = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     return await ctx.db
       .query("aiConversations")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .order("desc")
       .collect();
   },
@@ -40,10 +41,10 @@ export const createConversation = mutation({
     subject: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     return await ctx.db.insert("aiConversations", {
-      userId,
+      userId: userId as string,
       title: args.title,
       subject: args.subject,
       lastMessageAt: Date.now(),
@@ -57,7 +58,7 @@ export const sendMessage = mutation({
     content: v.string(),
   },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
 
     // Add user message
@@ -73,12 +74,12 @@ export const sendMessage = mutation({
       lastMessageAt: Date.now(),
     });
 
-    // Generate a contextual AI response based on user's query
+    // Generate a contextual AI response
     const userMsg = args.content.toLowerCase();
     let response = "";
 
     if (userMsg.includes("explain") || userMsg.includes("what is") || userMsg.includes("what are")) {
-      response = `Great question! Let me help explain that concept.\n\nBased on your query, here's what you should know:\n\n**Key Concept:** The topic you're asking about involves understanding the fundamental principles and how they apply in practice.\n\n**Important Points:**\n1. Start with the basics and build understanding step by step\n2. Practice with examples to solidify your understanding\n3. Connect this to what you already know\n\nWould you like me to go deeper into any specific aspect? I can also create practice questions to help you test your understanding.`;
+      response = `Great question! Let me help explain that concept.\n\n**Key Concept:** The topic you're asking about involves understanding the fundamental principles and how they apply in practice.\n\n**Important Points:**\n1. Start with the basics and build understanding step by step\n2. Practice with examples to solidify your understanding\n3. Connect this to what you already know\n\nWould you like me to go deeper into any specific aspect? I can also create practice questions to help you test your understanding.`;
     } else if (userMsg.includes("practice") || userMsg.includes("quiz") || userMsg.includes("test")) {
       response = `Here are some practice questions to test your understanding:\n\n**Question 1:** Can you describe the core principles of this topic in your own words?\n\n**Question 2:** How would you apply this concept in a real-world scenario?\n\n**Question 3:** What are the common mistakes students make with this topic?\n\nTry answering these, and I'll give you feedback on your responses. Remember, making mistakes is part of learning!`;
     } else if (userMsg.includes("summarize") || userMsg.includes("summary")) {

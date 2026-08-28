@@ -1,14 +1,15 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
 export const get = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return null;
     return await ctx.db
       .query("learningProgress")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .first();
   },
 });
@@ -21,11 +22,11 @@ export const upsert = mutation({
     streakDays: v.number(),
   },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
     const existing = await ctx.db
       .query("learningProgress")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .first();
     if (existing) {
       await ctx.db.patch(existing._id, {
@@ -34,7 +35,7 @@ export const upsert = mutation({
       });
     } else {
       await ctx.db.insert("learningProgress", {
-        userId,
+        userId: userId as string,
         ...args,
         lastActiveDate: Date.now(),
       });
@@ -45,11 +46,11 @@ export const upsert = mutation({
 export const getSubjectBreakdown = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const lessons = await ctx.db
       .query("lessons")
-      .withIndex("by_student", (q) => q.eq("studentId", userId))
+      .withIndex("by_student", (q) => q.eq("studentId", userId as string))
       .collect();
     const completed = lessons.filter((l) => l.status === "completed");
 

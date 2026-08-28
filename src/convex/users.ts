@@ -1,35 +1,35 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
 export const currentUser = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return null;
-    const user = await ctx.db.get(userId as any);
-    return user;
+    return await ctx.db.get(userId);
   },
 });
 
 export const getProfileStatus = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return null;
-    const user = await ctx.db.get(userId as any);
+    const user = await ctx.db.get(userId);
     if (!user) return null;
 
     const teacherProfile = await ctx.db
       .query("teacherProfiles")
-      .filter((q) => q.eq(q.field("userId"), userId))
+      .filter((q) => q.eq(q.field("userId"), userId as string))
       .first();
 
     const studentProfile = await ctx.db
       .query("studentProfiles")
-      .withIndex("by_user", (q) => q.eq("userId", userId))
+      .withIndex("by_user", (q) => q.eq("userId", userId as string))
       .first();
 
-    const role = ("role" in user && user.role) || "student";
+    const role = user.role || "student";
     let completionPct = 0;
     let isComplete = false;
 
@@ -79,11 +79,8 @@ export const updateProfile = mutation({
     image: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    const user = await ctx.db.get(userId as any);
-    if (!user) throw new Error("User not found");
-
     const updates: Record<string, any> = {};
     if (args.name !== undefined) updates.name = args.name;
     if (args.bio !== undefined) updates.bio = args.bio;
@@ -92,17 +89,16 @@ export const updateProfile = mutation({
     if (args.country !== undefined) updates.country = args.country;
     if (args.preferredLanguage !== undefined) updates.preferredLanguage = args.preferredLanguage;
     if (args.image !== undefined) updates.image = args.image;
-
-    await ctx.db.patch(userId as any, updates);
+    await ctx.db.patch(userId, updates);
   },
 });
 
 export const setRole = mutation({
   args: { role: v.union(v.literal("student"), v.literal("teacher"), v.literal("admin")) },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
-    await ctx.db.patch(userId as any, { role: args.role });
+    await ctx.db.patch(userId, { role: args.role });
   },
 });
 

@@ -1,3 +1,4 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
@@ -24,11 +25,11 @@ export const listByTeacher = query({
 export const getPending = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const all = await ctx.db
       .query("assignments")
-      .withIndex("by_student", (q) => q.eq("studentId", userId))
+      .withIndex("by_student", (q) => q.eq("studentId", userId as string))
       .collect();
     return all.filter((a) => a.status === "assigned" || a.status === "in_progress");
   },

@@ -1,10 +1,11 @@
+import { getAuthUserId } from "@convex-dev/auth/server";
 import { v } from "convex/values";
 import { query, mutation } from "./_generated/server";
 
 export const listUpcoming = query({
   args: {},
   handler: async (ctx) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const now = Date.now();
     const lessons = await ctx.db
@@ -12,7 +13,7 @@ export const listUpcoming = query({
       .withIndex("by_scheduled", (q) => q.gte("scheduledAt", now))
       .collect();
     return lessons.filter(
-      (l) => l.studentId === userId || l.teacherId === userId,
+      (l) => l.studentId === (userId as string) || l.teacherId === (userId as string),
     );
   },
 });
@@ -40,7 +41,7 @@ export const listByTeacher = query({
 export const listByDateRange = query({
   args: { startDate: v.number(), endDate: v.number() },
   handler: async (ctx, args) => {
-    const userId = (await ctx.auth.getUserIdentity())?.subject;
+    const userId = await getAuthUserId(ctx);
     if (!userId) return [];
     const all = await ctx.db
       .query("lessons")
@@ -49,7 +50,7 @@ export const listByDateRange = query({
       )
       .collect();
     return all.filter(
-      (l) => l.studentId === userId || l.teacherId === userId,
+      (l) => l.studentId === (userId as string) || l.teacherId === (userId as string),
     );
   },
 });
