@@ -134,95 +134,16 @@ createRoot(document.getElementById("root")!).render(
           <RouteSyncer />
           <Suspense fallback={<RouteLoading />}>
             <Routes>
-              {/* Public Routes */}
               <Route path="/" element={<Landing />} />
-              <Route
-                path="/auth"
-                element={<AuthPage redirectAfterAuth="/dashboard" />}
-              />
-
-              {/* Classroom - No nav overlay */}
-              <Route
-                path="/classroom"
-                element={
-                  <RequireAuth>
-                    <ClassroomPage />
-                  </RequireAuth>
-                }
-              />
-
-              {/* Authenticated Routes with Navigation */}
-              <Route
-                path="/dashboard"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <Dashboard />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/teachers"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <TeachersPage />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/teachers/:id"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <TeacherProfilePage />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/classes"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <ClassesPage />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/teacher-dashboard"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <TeacherDashboard />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/messages"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <MessagesPage />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-              <Route
-                path="/community"
-                element={
-                  <RequireAuth>
-                    <AppShell>
-                      <CommunityPage />
-                    </AppShell>
-                  </RequireAuth>
-                }
-              />
-
+              <Route path="/auth" element={<AuthPage redirectAfterAuth="/dashboard" />} />
+              <Route path="/classroom" element={<RequireAuth><ClassroomPage /></RequireAuth>} />
+              <Route path="/dashboard" element={<RequireAuth><AppShell><Dashboard /></AppShell></RequireAuth>} />
+              <Route path="/teachers" element={<RequireAuth><AppShell><TeachersPage /></AppShell></RequireAuth>} />
+              <Route path="/teachers/:id" element={<RequireAuth><AppShell><TeacherProfilePage /></AppShell></RequireAuth>} />
+              <Route path="/classes" element={<RequireAuth><AppShell><ClassesPage /></AppShell></RequireAuth>} />
+              <Route path="/teacher-dashboard" element={<RequireAuth><AppShell><TeacherDashboard /></AppShell></RequireAuth>} />
+              <Route path="/messages" element={<RequireAuth><AppShell><MessagesPage /></AppShell></RequireAuth>} />
+              <Route path="/community" element={<RequireAuth><AppShell><CommunityPage /></AppShell></RequireAuth>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>
