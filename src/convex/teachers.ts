@@ -127,6 +127,8 @@ export const createProfile = mutation({
       isVerified: false,
       isAvailable: false,
       teachingStyle: args.teachingStyle,
+      targetStudents: args.targetStudents,
+      verificationStatus: "not_started",
     });
 
     // Update user role to teacher

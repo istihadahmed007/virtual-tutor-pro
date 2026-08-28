@@ -29,7 +29,32 @@ const schema = defineSchema(
       role: v.optional(roleValidator),
       bio: v.optional(v.string()),
       timezone: v.optional(v.string()),
+      phone: v.optional(v.string()),
+      country: v.optional(v.string()),
+      preferredLanguage: v.optional(v.string()),
+      notificationPrefs: v.optional(
+        v.object({
+          email: v.boolean(),
+          push: v.boolean(),
+          sms: v.boolean(),
+        }),
+      ),
     }).index("email", ["email"]),
+
+    // ─── Student Profiles ────────────────────────────────
+    studentProfiles: defineTable({
+      userId: v.string(),
+      name: v.string(),
+      avatarUrl: v.optional(v.string()),
+      educationLevel: v.optional(v.string()),
+      subjects: v.array(v.string()),
+      learningGoals: v.array(v.string()),
+      skillLevel: v.optional(v.string()),
+      preferredTeachingStyle: v.optional(v.string()),
+      weeklyHours: v.optional(v.number()),
+      bio: v.optional(v.string()),
+      profileCompletionPct: v.number(),
+    }).index("by_user", ["userId"]),
 
     // ─── Teacher Profiles ────────────────────────────────
     teacherProfiles: defineTable({
@@ -53,19 +78,73 @@ const schema = defineSchema(
       avatarUrl: v.optional(v.string()),
       introVideoUrl: v.optional(v.string()),
       teachingStyle: v.optional(v.array(v.string())),
-      introVideo: v.optional(v.string()),
-    }).index("by_user", ["userId"]).index("by_subject", ["subjects"]).index("by_rating", ["rating"]),
+      targetStudents: v.optional(v.array(v.string())),
+      country: v.optional(v.string()),
+      verificationStatus: v.union(
+        v.literal("not_started"),
+        v.literal("under_review"),
+        v.literal("verified"),
+        v.literal("needs_attention"),
+      ),
+      trialPrice: v.optional(v.number()),
+      price30min: v.optional(v.number()),
+      price60min: v.optional(v.number()),
+      groupPrice: v.optional(v.number()),
+    })
+      .index("by_user", ["userId"])
+      .index("by_subject", ["subjects"])
+      .index("by_rating", ["rating"])
+      .index("by_verification", ["verificationStatus"]),
 
     // ─── Teacher Availability ────────────────────────────
     availability: defineTable({
       teacherId: v.string(),
       dayOfWeek: v.number(), // 0=Sun, 6=Sat
       startTime: v.string(), // "09:00"
-      endTime: v.string(),   // "17:00"
+      endTime: v.string(), // "17:00"
       isActive: v.boolean(),
     }).index("by_teacher", ["teacherId"]),
 
-    // ─── Live Sessions / Classes ─────────────────────────
+    // ─── Lessons (scheduled 1-on-1 or group) ─────────────
+    lessons: defineTable({
+      teacherId: v.string(),
+      teacherName: v.string(),
+      studentId: v.string(),
+      studentName: v.string(),
+      subject: v.string(),
+      title: v.string(),
+      description: v.optional(v.string()),
+      scheduledAt: v.number(),
+      durationMinutes: v.number(),
+      status: v.union(
+        v.literal("scheduled"),
+        v.literal("in_progress"),
+        v.literal("completed"),
+        v.literal("cancelled"),
+        v.literal("no_show"),
+      ),
+      sessionType: v.union(
+        v.literal("1-to-1"),
+        v.literal("small-group"),
+        v.literal("trial"),
+        v.literal("mentoring"),
+        v.literal("exam-prep"),
+        v.literal("project-help"),
+      ),
+      price: v.number(),
+      meetingCode: v.optional(v.string()),
+      recordingUrl: v.optional(v.string()),
+      teacherFeedback: v.optional(v.string()),
+      homework: v.optional(v.string()),
+      rating: v.optional(v.number()),
+      studentRating: v.optional(v.number()),
+    })
+      .index("by_teacher", ["teacherId"])
+      .index("by_student", ["studentId"])
+      .index("by_scheduled", ["scheduledAt"])
+      .index("by_status", ["status"]),
+
+    // ─── Live Sessions (group classes) ───────────────────
     liveSessions: defineTable({
       teacherId: v.string(),
       teacherName: v.string(),
@@ -95,7 +174,10 @@ const schema = defineSchema(
         v.literal("project-help"),
       ),
       price: v.number(),
-    }).index("by_teacher", ["teacherId"]).index("by_status", ["status"]).index("by_scheduled", ["scheduledAt"]),
+    })
+      .index("by_teacher", ["teacherId"])
+      .index("by_status", ["status"])
+      .index("by_scheduled", ["scheduledAt"]),
 
     // ─── Bookings ────────────────────────────────────────
     bookings: defineTable({
@@ -103,6 +185,7 @@ const schema = defineSchema(
       teacherId: v.string(),
       teacherName: v.string(),
       studentName: v.string(),
+      lessonId: v.optional(v.string()),
       sessionId: v.optional(v.string()),
       date: v.string(),
       timeSlot: v.string(),
@@ -117,9 +200,40 @@ const schema = defineSchema(
         v.literal("cancelled"),
       ),
       meetingCode: v.optional(v.string()),
-    }).index("by_user", ["userId"]).index("by_teacher", ["teacherId"]),
+      createdAt: v.number(),
+    })
+      .index("by_user", ["userId"])
+      .index("by_teacher", ["teacherId"])
+      .index("by_date", ["date"]),
 
-    // ─── Class Messages (real-time chat) ─────────────────
+    // ─── Assignments ─────────────────────────────────────
+    assignments: defineTable({
+      teacherId: v.string(),
+      teacherName: v.string(),
+      studentId: v.string(),
+      studentName: v.string(),
+      lessonId: v.optional(v.string()),
+      subject: v.string(),
+      title: v.string(),
+      description: v.string(),
+      dueDate: v.number(),
+      status: v.union(
+        v.literal("assigned"),
+        v.literal("in_progress"),
+        v.literal("submitted"),
+        v.literal("graded"),
+        v.literal("returned"),
+      ),
+      grade: v.optional(v.string()),
+      feedback: v.optional(v.string()),
+      attachments: v.optional(v.array(v.string())),
+      createdAt: v.number(),
+    })
+      .index("by_student", ["studentId"])
+      .index("by_teacher", ["teacherId"])
+      .index("by_status", ["status"]),
+
+    // ─── Class Messages (real-time chat in sessions) ─────
     classMessages: defineTable({
       sessionId: v.string(),
       senderId: v.string(),
@@ -139,6 +253,7 @@ const schema = defineSchema(
     // ─── Direct Messages ─────────────────────────────────
     conversations: defineTable({
       participants: v.array(v.string()),
+      participantNames: v.array(v.string()),
       lastMessage: v.string(),
       lastMessageAt: v.number(),
       lastSenderId: v.string(),
@@ -153,6 +268,32 @@ const schema = defineSchema(
       read: v.boolean(),
     }).index("by_conversation", ["conversationId"]),
 
+    // ─── AI Conversations ────────────────────────────────
+    aiConversations: defineTable({
+      userId: v.string(),
+      title: v.string(),
+      subject: v.optional(v.string()),
+      lastMessageAt: v.number(),
+    }).index("by_user", ["userId"]),
+
+    aiMessages: defineTable({
+      conversationId: v.string(),
+      role: v.union(v.literal("user"), v.literal("assistant")),
+      content: v.string(),
+      timestamp: v.number(),
+    }).index("by_conversation", ["conversationId"]),
+
+    // ─── Notifications ───────────────────────────────────
+    notifications: defineTable({
+      userId: v.string(),
+      type: v.string(),
+      title: v.string(),
+      message: v.string(),
+      read: v.boolean(),
+      actionUrl: v.optional(v.string()),
+      createdAt: v.number(),
+    }).index("by_user", ["userId"]),
+
     // ─── Community Posts ─────────────────────────────────
     communityPosts: defineTable({
       authorId: v.string(),
@@ -166,7 +307,9 @@ const schema = defineSchema(
       likesCount: v.number(),
       repliesCount: v.number(),
       createdAt: v.number(),
-    }).index("by_subject", ["subject"]).index("by_created", ["createdAt"]),
+    })
+      .index("by_subject", ["subject"])
+      .index("by_created", ["createdAt"]),
 
     communityReplies: defineTable({
       postId: v.string(),
@@ -186,6 +329,7 @@ const schema = defineSchema(
       rating: v.number(),
       comment: v.string(),
       subject: v.optional(v.string()),
+      lessonId: v.optional(v.string()),
       createdAt: v.number(),
     }).index("by_teacher", ["teacherId"]),
 
@@ -201,17 +345,6 @@ const schema = defineSchema(
       createdAt: v.number(),
     }).index("by_session", ["sessionId"]),
 
-    // ─── AI Learning Summaries ───────────────────────────
-    learningSummaries: defineTable({
-      sessionId: v.string(),
-      studentId: v.string(),
-      whatYouLearned: v.array(v.string()),
-      whatYouStruggled: v.array(v.string()),
-      whatToPractice: v.array(v.string()),
-      recommendedNext: v.optional(v.string()),
-      generatedAt: v.number(),
-    }).index("by_student", ["studentId"]),
-
     // ─── Learning Progress ───────────────────────────────
     learningProgress: defineTable({
       userId: v.string(),
@@ -220,6 +353,16 @@ const schema = defineSchema(
       subjectsStudied: v.array(v.string()),
       streakDays: v.number(),
       lastActiveDate: v.number(),
+      weeklyData: v.optional(
+        v.array(
+          v.object({
+            week: v.string(),
+            hours: v.number(),
+            lessons: v.number(),
+            accuracy: v.number(),
+          }),
+        ),
+      ),
     }).index("by_user", ["userId"]),
   },
   {

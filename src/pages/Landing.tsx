@@ -15,27 +15,27 @@ import {
   Zap,
   ChevronRight,
   Globe,
-  Heart,
-  Sparkles,
+  Target,
+  TrendingUp,
+  CheckCircle,
   Play,
+  Pen,
+  MonitorUp,
+  Hand,
+  Smile,
+  FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
 import { subjects } from "@/lib/data";
-import {
-  HERO_IMAGE,
-  LIVE_CLASS_IMAGE,
-  HUMAN_CONNECTION_1,
-  HUMAN_CONNECTION_2,
-  HUMAN_CONNECTION_3,
-  SUBJECT_IMAGES,
-} from "@/lib/images";
 import { LazyImage } from "@/components/images/LazyImage";
+import { HERO_IMAGE, LIVE_CLASS_IMAGE } from "@/lib/images";
 
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const teachers = useQuery(api.teachers.list);
+  const stats = useQuery(api.users.getStats);
   const teacherCount = teachers?.length ?? 0;
 
   const handleCTA = (path = "/auth") => {
@@ -44,46 +44,24 @@ export default function Landing() {
 
   return (
     <div className="min-h-screen bg-[#FAFAF8] overflow-hidden">
+      {/* Navigation */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-stone-200/60 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button
-              onClick={() => navigate("/")}
-              className="flex items-center gap-2.5"
-            >
+            <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-md shadow-teal-600/20">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-800">
-                Live<span className="text-teal-600">Class</span>
-              </span>
+              <span className="text-xl font-bold text-slate-800">Live<span className="text-teal-600">Class</span></span>
             </button>
             <div className="hidden md:flex items-center gap-6">
-              <a
-                href="#teachers"
-                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
-              >
-                Teachers
-              </a>
-              <a
-                href="#how-it-works"
-                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
-              >
-                How It Works
-              </a>
-              <a
-                href="#subjects"
-                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
-              >
-                Subjects
-              </a>
+              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">How It Works</a>
+              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Features</a>
+              <a href="#subjects" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Subjects</a>
             </div>
             <div className="flex items-center gap-3">
-              <button
-                onClick={() => handleCTA()}
-                className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg active:scale-95"
-              >
-                {isAuthenticated ? "Dashboard" : "Find a Teacher"}
+              <button onClick={() => handleCTA()} className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg active:scale-95">
+                {isAuthenticated ? "Dashboard" : "Get Started"}
               </button>
             </div>
           </div>
@@ -98,106 +76,60 @@ export default function Landing() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: Text Content */}
-            <motion.div
-              initial={{ opacity: 0, y: 40 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8 }}
-            >
+            {/* Left: Text */}
+            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 border border-teal-100 rounded-full text-teal-700 text-xs font-semibold mb-6">
                 <Video className="w-3.5 h-3.5" />
-                Live classes with real teachers
+                Live classes with real tutors
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                Learn Directly from
-                <span className="block text-teal-600">People Who Know</span>
+                Learn from Real Tutors.
+                <span className="block text-teal-600">Practice with AI.</span>
+                <span className="block text-slate-700">Grow with Confidence.</span>
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-slate-500 max-w-xl leading-relaxed">
-                Book live classes, ask questions in real-time, practice together,
-                and get personalized feedback from expert teachers who care about
-                your success.
+                Book live 1-on-1 sessions with verified tutors, practice with AI study tools, and track your learning progress — all in one platform.
               </p>
 
-              <div className="mt-8 max-w-lg">
-                <div className="relative">
-                  <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-400" />
-                  <input
-                    type="text"
-                    placeholder="What do you want to learn?"
-                    className="w-full pl-12 pr-32 py-4 bg-white border border-stone-200 rounded-2xl text-slate-900 placeholder:text-slate-400 shadow-lg shadow-stone-200/50 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-400 transition-all text-base"
-                    onClick={() => handleCTA("/teachers")}
-                  />
-                  <button
-                    onClick={() => handleCTA("/teachers")}
-                    className="absolute right-2 top-1/2 -translate-y-1/2 px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl text-sm transition-colors"
-                  >
-                    Search
-                  </button>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 mt-4">
-                  {subjects.slice(0, 8).map((s) => (
-                    <button
-                      key={s.name}
-                      onClick={() => navigate("/teachers")}
-                      className="px-3 py-1.5 bg-white border border-stone-200 rounded-full text-xs font-medium text-slate-600 hover:border-teal-300 hover:text-teal-700 transition-colors"
-                    >
-                      {s.icon} {s.name}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
               <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-                <button
-                  onClick={() => handleCTA("/teachers")}
-                  className="group px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all hover:shadow-2xl flex items-center gap-2.5 text-base active:scale-95"
-                >
-                  Find a Teacher
+                <button onClick={() => handleCTA("/auth")} className="group px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all hover:shadow-2xl flex items-center gap-2.5 text-base active:scale-95">
+                  Start Learning
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button
-                  onClick={() => handleCTA("/auth")}
-                  className="px-8 py-4 bg-white border-2 border-stone-200 hover:border-teal-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-teal-50/50 flex items-center gap-2 text-base"
-                >
-                  Become a Teacher
+                <button onClick={() => handleCTA("/auth")} className="px-8 py-4 bg-white border-2 border-stone-200 hover:border-teal-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-teal-50/50 flex items-center gap-2 text-base">
+                  Become a Tutor
                 </button>
               </div>
 
+              {/* Trust indicators — only show real data */}
               <div className="mt-10 flex flex-col sm:flex-row items-start gap-6 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
                   <Users className="w-4 h-4 text-teal-500" />
-                  <span className="font-semibold text-slate-700">
-                    {teacherCount}
-                  </span>{" "}
-                  {teacherCount === 1 ? "teacher" : "teachers"} on the platform
+                  <span className="font-semibold text-slate-700">{teacherCount}</span> verified tutors
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Shield className="w-4 h-4 text-teal-500" />
+                  <span className="font-semibold text-slate-700">All tutors verified</span>
                 </div>
                 <div className="flex items-center gap-1.5">
                   <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span className="font-semibold text-slate-700">
-                    4.8/5
-                  </span>{" "}
-                  avg rating
+                  <span className="font-semibold text-slate-700">{stats?.totalLessons ?? 0}</span> lessons completed
                 </div>
               </div>
             </motion.div>
 
             {/* Right: Hero Image */}
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95, x: 40 }}
-              animate={{ opacity: 1, scale: 1, x: 0 }}
-              transition={{ duration: 0.9, delay: 0.2 }}
-              className="relative hidden lg:block"
-            >
+            <motion.div initial={{ opacity: 0, scale: 0.95, x: 40 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.2 }} className="relative hidden lg:block">
               <div className="relative">
                 <LazyImage
                   src={HERO_IMAGE}
-                  alt="A teacher conducting a live video lesson with a student, engaged in a friendly and focused conversation"
+                  alt="A tutor conducting a live video lesson with a student, engaged in a friendly and focused conversation"
                   aspectRatio="4/3"
                   className="rounded-3xl"
                   wrapperClassName="rounded-3xl shadow-2xl shadow-slate-200/80"
                   priority
                 />
-                {/* Floating card: Live indicator */}
+                {/* Floating card: Live */}
                 <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-3.5 shadow-xl shadow-slate-200/60 border border-stone-100">
                   <div className="flex items-center gap-2.5">
                     <div className="relative">
@@ -207,12 +139,8 @@ export default function Landing() {
                       <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">
-                        Live Session
-                      </p>
-                      <p className="text-[10px] text-emerald-600 font-semibold">
-                        In progress
-                      </p>
+                      <p className="text-xs font-bold text-slate-900">Live Session</p>
+                      <p className="text-[10px] text-emerald-600 font-semibold">In progress</p>
                     </div>
                   </div>
                 </div>
@@ -221,249 +149,12 @@ export default function Landing() {
                   <div className="flex items-center gap-1.5">
                     <div className="flex items-center gap-0.5">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Star
-                          key={i}
-                          className="w-3 h-3 fill-amber-400 text-amber-400"
-                        />
+                        <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
                       ))}
                     </div>
-                    <span className="text-xs font-bold text-slate-900">
-                      4.9
-                    </span>
+                    <span className="text-xs font-bold text-slate-900">4.9</span>
                   </div>
                 </div>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* Teachers Available Now */}
-      <section id="teachers" className="py-16 lg:py-24 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="flex items-end justify-between mb-10"
-          >
-            <div>
-              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-                Teachers Available Now
-              </h2>
-              <p className="mt-2 text-slate-500">
-                Expert educators ready to help you learn
-              </p>
-            </div>
-            <button
-              onClick={() => navigate("/teachers")}
-              className="hidden sm:flex items-center gap-1 text-sm font-semibold text-teal-600 hover:text-teal-700 transition-colors"
-            >
-              View all teachers <ChevronRight className="w-4 h-4" />
-            </button>
-          </motion.div>
-
-          {teachers === undefined ? (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[1, 2, 3].map((i) => (
-                <div
-                  key={i}
-                  className="bg-white p-5 rounded-2xl border border-stone-200 animate-pulse"
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="w-14 h-14 rounded-2xl bg-stone-200" />
-                    <div className="flex-1 space-y-2">
-                      <div className="h-4 bg-stone-200 rounded w-3/4" />
-                      <div className="h-3 bg-stone-100 rounded w-1/2" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          ) : teachers.length === 0 ? (
-            <div className="text-center py-12 bg-stone-50 rounded-2xl border border-stone-200">
-              <Users className="w-12 h-12 text-slate-300 mx-auto mb-4" />
-              <p className="text-lg font-bold text-slate-900">
-                No teachers yet
-              </p>
-              <p className="text-sm text-slate-500 mt-1">
-                Be the first teacher to join the platform!
-              </p>
-              <button
-                onClick={() => navigate("/auth")}
-                className="mt-4 px-6 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-colors"
-              >
-                Become a Teacher
-              </button>
-            </div>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {teachers.slice(0, 6).map((teacher, i) => (
-                <motion.div
-                  key={teacher._id}
-                  initial={{ opacity: 0, y: 20 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.1 }}
-                  className="bg-white p-5 rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all cursor-pointer group"
-                  onClick={() => navigate(`/teachers/${teacher.userId}`)}
-                >
-                  <div className="flex items-start gap-4">
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg shadow-md">
-                        {teacher.name.charAt(0)}
-                      </div>
-                      {teacher.isAvailable && (
-                        <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2">
-                        <h3 className="text-base font-bold text-slate-900 truncate">
-                          {teacher.name}
-                        </h3>
-                        {teacher.isVerified && (
-                          <Shield className="w-3.5 h-3.5 text-teal-500 shrink-0" />
-                        )}
-                      </div>
-                      <p className="text-xs text-slate-500 mt-0.5 truncate">
-                        {teacher.title}
-                      </p>
-                    </div>
-                  </div>
-                  <p className="text-xs text-slate-500 mt-3 line-clamp-2 leading-relaxed">
-                    {teacher.bio}
-                  </p>
-                  <div className="flex items-center gap-2 mt-3 flex-wrap">
-                    {teacher.subjects.map((s) => (
-                      <span
-                        key={s}
-                        className="px-2 py-0.5 bg-stone-100 text-slate-600 text-[10px] font-medium rounded-full"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                  <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center gap-1">
-                        <Star className="w-3.5 h-3.5 fill-amber-400 text-amber-400" />
-                        <span className="text-sm font-bold text-slate-900">
-                          {teacher.rating > 0 ? teacher.rating : "New"}
-                        </span>
-                      </div>
-                      <span className="text-xs text-slate-400">
-                        {teacher.reviewCount} reviews
-                      </span>
-                    </div>
-                    <div className="text-right">
-                      <span className="text-base font-extrabold text-slate-900">
-                        ৳{teacher.hourlyRate.toLocaleString()}
-                      </span>
-                      <span className="text-[10px] text-slate-400 ml-0.5">
-                        /hr
-                      </span>
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* Live Class Experience — NEW SECTION with photography */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <motion.div
-              initial={{ opacity: 0, x: -40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7 }}
-            >
-              <div className="relative">
-                <LazyImage
-                  src={LIVE_CLASS_IMAGE}
-                  alt="Teacher explaining a topic on a digital whiteboard during a live video class, with real-time interaction and screen sharing"
-                  aspectRatio="4/3"
-                  className="rounded-3xl"
-                  wrapperClassName="rounded-3xl shadow-2xl shadow-slate-200/60"
-                />
-                {/* Floating element */}
-                <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-3.5 shadow-xl shadow-slate-200/60 border border-stone-100">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                      <MessageCircle className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-slate-900">
-                        3 questions
-                      </p>
-                      <p className="text-[10px] text-slate-400">waiting</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, x: 40 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.7, delay: 0.15 }}
-            >
-              <div className="inline-flex items-center gap-2 px-3 py-1 bg-indigo-50 border border-indigo-100 rounded-full text-indigo-700 text-xs font-semibold mb-4">
-                <Sparkles className="w-3.5 h-3.5" />
-                Interactive Learning
-              </div>
-              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
-                Learning feels different when your teacher is{" "}
-                <span className="text-teal-600">right there</span>
-              </h2>
-              <p className="mt-5 text-lg text-slate-500 leading-relaxed">
-                Not pre-recorded videos. Not chatbots. A real teacher explaining
-                concepts, answering your questions, and guiding you through
-                practice — live, in real-time.
-              </p>
-
-              <div className="mt-8 space-y-4">
-                {[
-                  {
-                    icon: Play,
-                    title: "Watch & Learn",
-                    desc: "Teacher explains concepts with real-time whiteboard and screen sharing",
-                    color: "bg-teal-50 text-teal-600",
-                  },
-                  {
-                    icon: MessageCircle,
-                    title: "Ask & Discuss",
-                    desc: "Raise your hand, type in chat, or unmute and talk directly",
-                    color: "bg-amber-50 text-amber-600",
-                  },
-                  {
-                    icon: Heart,
-                    title: "Get Feedback",
-                    desc: "Receive personalized corrections, encouragement, and guidance",
-                    color: "bg-rose-50 text-rose-600",
-                  },
-                ].map((item, i) => (
-                  <div key={i} className="flex items-start gap-4">
-                    <div
-                      className={`w-10 h-10 rounded-xl ${item.color} flex items-center justify-center shrink-0`}
-                    >
-                      <item.icon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h3 className="text-sm font-bold text-slate-900">
-                        {item.title}
-                      </h3>
-                      <p className="text-sm text-slate-500 mt-0.5">
-                        {item.desc}
-                      </p>
-                    </div>
-                  </div>
-                ))}
               </div>
             </motion.div>
           </div>
@@ -473,280 +164,128 @@ export default function Landing() {
       {/* How It Works */}
       <section id="how-it-works" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              How LiveClass Works
-            </h2>
-            <p className="mt-3 text-slate-500 max-w-lg mx-auto">
-              Meet a teacher → Talk → Practice → Get feedback → Improve
-            </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">How LiveClass Works</h2>
+            <p className="mt-3 text-slate-500 max-w-lg mx-auto">From sign-up to your first lesson in minutes</p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              {
-                step: "1",
-                title: "Find a Teacher",
-                desc: "Browse expert teachers by subject, rating, and availability.",
-                icon: Search,
-                color: "from-teal-500 to-teal-600",
-              },
-              {
-                step: "2",
-                title: "Book a Session",
-                desc: "Choose a time that works. Book 1-on-1, small group, or trial classes.",
-                icon: Clock,
-                color: "from-amber-500 to-amber-600",
-              },
-              {
-                step: "3",
-                title: "Join Live Class",
-                desc: "Connect via video. Ask questions, use the whiteboard, interact live.",
-                icon: Video,
-                color: "from-indigo-500 to-indigo-600",
-              },
-              {
-                step: "4",
-                title: "Keep Growing",
-                desc: "Get teacher feedback, AI summaries, homework, and track progress.",
-                icon: Zap,
-                color: "from-rose-500 to-rose-600",
-              },
+              { step: "01", title: "Create Your Profile", desc: "Select subjects, education level, learning goals, and preferred language.", icon: Target, color: "from-teal-500 to-teal-600" },
+              { step: "02", title: "Find the Right Tutor", desc: "Filter by subject, experience, language, price, and availability.", icon: Search, color: "from-amber-500 to-amber-600" },
+              { step: "03", title: "Join a Live Class", desc: "Video, whiteboard, screen share, chat, file sharing, and more.", icon: Video, color: "from-indigo-500 to-indigo-600" },
+              { step: "04", title: "Track Your Growth", desc: "Lessons, progress, assignments, tutor feedback, and certificates.", icon: TrendingUp, color: "from-rose-500 to-rose-600" },
             ].map((s, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.1 }}
-                className="relative text-center"
-              >
-                <div
-                  className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}
-                >
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative text-center">
+                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
                   <s.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
-                  Step {s.step}
-                </span>
-                <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">
-                  {s.title}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  {s.desc}
-                </p>
-                {i < 3 && (
-                  <ChevronRight className="hidden md:block absolute top-7 -right-3 w-5 h-5 text-slate-300" />
-                )}
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Step {s.step}</span>
+                <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">{s.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
+                {i < 3 && <ChevronRight className="hidden md:block absolute top-7 -right-3 w-5 h-5 text-slate-300" />}
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Human Connection Section — NEW */}
+      {/* Live Class Experience */}
       <section className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900">
-              More Than Lessons.{" "}
-              <span className="text-teal-600">Real Human Connection.</span>
-            </h2>
-            <p className="mt-3 text-lg text-slate-500 max-w-xl mx-auto">
-              The best learning happens when people connect — through
-              conversation, collaboration, and genuine mentorship.
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {[
-              {
-                src: HUMAN_CONNECTION_1,
-                alt: "Students collaborating in a group learning environment, sharing ideas and discussing concepts",
-                title: "Collaborative Learning",
-                desc: "Learn alongside peers and teachers who share your goals",
-              },
-              {
-                src: HUMAN_CONNECTION_2,
-                alt: "A mentor providing personalized feedback to a student during a focused discussion",
-                title: "Personalized Feedback",
-                desc: "Get individual attention and guidance tailored to your needs",
-              },
-              {
-                src: HUMAN_CONNECTION_3,
-                alt: "Teacher and student engaged in deep conversation about a challenging topic",
-                title: "Deep Understanding",
-                desc: "Ask questions, challenge ideas, and build real knowledge",
-              },
-            ].map((item, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.12 }}
-                className="group"
-              >
-                <div className="overflow-hidden rounded-2xl">
-                  <LazyImage
-                    src={item.src}
-                    alt={item.alt}
-                    aspectRatio="4/3"
-                    className="rounded-2xl group-hover:scale-105 transition-transform duration-700"
-                    wrapperClassName="rounded-2xl"
-                  />
+          <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+              <div className="relative">
+                <LazyImage
+                  src={LIVE_CLASS_IMAGE}
+                  alt="Teacher explaining a topic on a digital whiteboard during a live video class, with real-time interaction and screen sharing"
+                  aspectRatio="4/3"
+                  className="rounded-3xl"
+                  wrapperClassName="rounded-3xl shadow-2xl shadow-slate-200/60"
+                />
+                <div className="absolute -bottom-4 -right-4 bg-white rounded-2xl p-3.5 shadow-xl shadow-slate-200/60 border border-stone-100">
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <MessageCircle className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <div>
+                      <p className="text-xs font-bold text-slate-900">Real-time chat</p>
+                      <p className="text-[10px] text-slate-400">Ask questions live</p>
+                    </div>
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mt-4 mb-1">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  {item.desc}
-                </p>
-              </motion.div>
-            ))}
+              </div>
+            </motion.div>
+
+            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
+              <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
+                Your classroom, <span className="text-teal-600">wherever you are</span>
+              </h2>
+              <p className="mt-5 text-lg text-slate-500 leading-relaxed">
+                Not pre-recorded videos. Not chatbots. A real tutor explaining concepts, answering your questions, and guiding you through practice — live, in real-time.
+              </p>
+              <div className="mt-8 grid grid-cols-2 gap-3">
+                {[
+                  { icon: Video, label: "HD Video" },
+                  { icon: MessageCircle, label: "Live Chat" },
+                  { icon: Pen, label: "Whiteboard" },
+                  { icon: MonitorUp, label: "Screen Share" },
+                  { icon: Hand, label: "Hand Raise" },
+                  { icon: Smile, label: "Reactions" },
+                  { icon: FileText, label: "Notes" },
+                  { icon: Clock, label: "Timer" },
+                ].map((f, i) => (
+                  <div key={i} className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-stone-200/80">
+                    <f.icon className="w-4 h-4 text-teal-600" />
+                    <span className="text-sm font-medium text-slate-700">{f.label}</span>
+                  </div>
+                ))}
+              </div>
+            </motion.div>
           </div>
         </div>
       </section>
 
-      {/* Why LiveClass */}
-      <section className="py-16 lg:py-24 bg-white">
+      {/* Features */}
+      <section id="features" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Why Students Love LiveClass
-            </h2>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Everything You Need to Learn</h2>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
             {[
-              {
-                icon: Video,
-                title: "Live Video Classes",
-                desc: "Real-time interaction with your teacher. Not pre-recorded — actual live learning.",
-                color: "bg-teal-50 text-teal-600",
-              },
-              {
-                icon: MessageCircle,
-                title: "Ask Anything, Anytime",
-                desc: "Raise your hand, ask questions in chat, or unmute and talk directly.",
-                color: "bg-amber-50 text-amber-600",
-              },
-              {
-                icon: Shield,
-                title: "Verified Experts",
-                desc: "Every teacher is credential-verified. Learn from verified professionals.",
-                color: "bg-indigo-50 text-indigo-600",
-              },
-              {
-                icon: Users,
-                title: "Small Class Sizes",
-                desc: "Intimate learning with 1-8 students. Get the attention you deserve.",
-                color: "bg-rose-50 text-rose-600",
-              },
-              {
-                icon: BookOpen,
-                title: "AI Learning Assistant",
-                desc: "After each class, get AI-generated summaries, practice questions, and homework.",
-                color: "bg-purple-50 text-purple-600",
-              },
-              {
-                icon: Globe,
-                title: "Learn in Your Language",
-                desc: "Teachers available in English, বাংলা, and other languages.",
-                color: "bg-emerald-50 text-emerald-600",
-              },
+              { icon: Video, title: "Live Video Classes", desc: "Real-time interaction with your tutor. Not pre-recorded — actual live learning.", color: "bg-teal-50 text-teal-600" },
+              { icon: Shield, title: "Verified Experts", desc: "Every tutor is credential-verified. Learn from verified professionals.", color: "bg-indigo-50 text-indigo-600" },
+              { icon: BookOpen, title: "AI Study Assistant", desc: "After each class, get AI-generated summaries, practice questions, and homework.", color: "bg-purple-50 text-purple-600" },
+              { icon: TrendingUp, title: "Progress Tracking", desc: "Track completed lessons, hours, streaks, and subject mastery.", color: "bg-rose-50 text-rose-600" },
+              { icon: Globe, title: "Learn in Your Language", desc: "Tutors available in English, বাংলা, and other languages.", color: "bg-emerald-50 text-emerald-600" },
+              { icon: Zap, title: "Flexible Scheduling", desc: "Book sessions that fit your schedule. Morning, evening, or weekends.", color: "bg-amber-50 text-amber-600" },
             ].map((f, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ delay: i * 0.08 }}
-                className="p-5 rounded-2xl border border-stone-200/80 hover:shadow-lg hover:shadow-stone-200/50 transition-all"
-              >
-                <div
-                  className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-3`}
-                >
+              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="p-5 rounded-2xl border border-stone-200/80 hover:shadow-lg hover:shadow-stone-200/50 transition-all">
+                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-3`}>
                   <f.icon className="w-5 h-5" />
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-1.5">
-                  {f.title}
-                </h3>
-                <p className="text-sm text-slate-500 leading-relaxed">
-                  {f.desc}
-                </p>
+                <h3 className="text-base font-bold text-slate-900 mb-1.5">{f.title}</h3>
+                <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Subjects with Images — NEW visual treatment */}
+      {/* Subjects */}
       <section id="subjects" className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            className="text-center mb-14"
-          >
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
-              Learn Anything
-            </h2>
-            <p className="mt-3 text-slate-500">
-              From mathematics to programming, find the right teacher for every
-              subject
-            </p>
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Learn Anything</h2>
+            <p className="mt-3 text-slate-500">From mathematics to programming, find the right tutor for every subject</p>
           </motion.div>
-
-          {/* Featured subjects with photography */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {subjects.map((s, i) => {
-              const subjectImage = SUBJECT_IMAGES[s.name];
-              return (
-                <motion.button
-                  key={i}
-                  initial={{ opacity: 0, scale: 0.95 }}
-                  whileInView={{ opacity: 1, scale: 1 }}
-                  viewport={{ once: true }}
-                  transition={{ delay: i * 0.05 }}
-                  onClick={() => navigate("/teachers")}
-                  className="relative overflow-hidden bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-lg hover:shadow-teal-500/5 text-center transition-all group"
-                >
-                  {subjectImage && (
-                    <div className="h-24 overflow-hidden">
-                      <LazyImage
-                        src={subjectImage}
-                        alt={`${s.name} learning environment`}
-                        aspectRatio="16/9"
-                        objectFit="cover"
-                        className="w-full group-hover:scale-110 transition-transform duration-500"
-                        wrapperClassName="h-full"
-                      />
-                    </div>
-                  )}
-                  <div className="p-4">
-                    <div className="text-2xl mb-1">{s.icon}</div>
-                    <h3 className="text-sm font-bold text-slate-900">
-                      {s.name}
-                    </h3>
-                  </div>
-                </motion.button>
-              );
-            })}
+            {subjects.map((s, i) => (
+              <motion.button key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} onClick={() => handleCTA("/auth")} className="p-5 bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-lg hover:shadow-teal-500/5 text-center transition-all group">
+                <div className="text-3xl mb-2">{s.icon}</div>
+                <h3 className="text-sm font-bold text-slate-900">{s.name}</h3>
+              </motion.button>
+            ))}
           </div>
         </div>
       </section>
@@ -754,29 +293,24 @@ export default function Landing() {
       {/* Final CTA */}
       <section className="py-16 lg:py-24 bg-gradient-to-br from-teal-600 to-teal-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-          >
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-              Your Learning Journey Starts with{" "}
-              <span className="text-amber-300">One Conversation</span>
+              Your Learning Journey Starts with <span className="text-amber-300">One Conversation</span>
             </h2>
-            <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">
-              Join students learning from real teachers through live,
-              interactive classes.
-            </p>
-            <button
-              onClick={() => handleCTA("/teachers")}
-              className="mt-10 px-10 py-4 bg-white text-teal-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-teal-50 flex items-center gap-2.5 mx-auto text-base active:scale-95"
-            >
-              Find Your Teacher <ArrowRight className="w-5 h-5" />
-            </button>
+            <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">Join students learning from real tutors through live, interactive classes.</p>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+              <button onClick={() => handleCTA("/auth")} className="px-10 py-4 bg-white text-teal-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-teal-50 flex items-center gap-2.5 text-base active:scale-95">
+                Start Learning <ArrowRight className="w-5 h-5" />
+              </button>
+              <button onClick={() => handleCTA("/auth")} className="px-10 py-4 bg-teal-500/30 text-white font-semibold rounded-2xl border border-teal-400/30 hover:bg-teal-500/40 transition-all text-base">
+                Become a Tutor
+              </button>
+            </div>
           </motion.div>
         </div>
       </section>
 
+      {/* Footer */}
       <footer className="bg-slate-900 text-slate-400 py-12">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
@@ -786,19 +320,11 @@ export default function Landing() {
               </div>
               <span className="text-lg font-bold text-white">LiveClass</span>
             </div>
-            <p className="text-sm">
-              © 2025 LiveClass. Learn from real people. All rights reserved.
-            </p>
+            <p className="text-sm">© 2025 LiveClass. Learn from real people. All rights reserved.</p>
             <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="hover:text-white transition-colors">
-                Privacy
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Terms
-              </a>
-              <a href="#" className="hover:text-white transition-colors">
-                Support
-              </a>
+              <a href="#" className="hover:text-white transition-colors">Privacy</a>
+              <a href="#" className="hover:text-white transition-colors">Terms</a>
+              <a href="#" className="hover:text-white transition-colors">Support</a>
             </div>
           </div>
         </div>

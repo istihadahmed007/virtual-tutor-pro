@@ -81,8 +81,13 @@ export const createConversation = mutation({
 
     if (existing) return { conversationId: existing._id };
 
+    const user = await ctx.db.get(userId);
+    const participant = await ctx.db.get(args.participantId as any);
+    const userName = user && "name" in user ? user.name || "User" : "User";
+    const participantName = participant && "name" in participant ? participant.name || "User" : "User";
     const convId = await ctx.db.insert("conversations", {
       participants: [userId as string, args.participantId],
+      participantNames: [userName, participantName],
       lastMessage: "",
       lastMessageAt: Date.now(),
       lastSenderId: userId as string,

@@ -67,6 +67,7 @@ export const create = mutation({
       price: args.price,
       status: "pending",
       meetingCode,
+      createdAt: Date.now(),
     });
 
     return { success: true, meetingCode };
