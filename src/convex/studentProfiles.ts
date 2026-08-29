@@ -49,6 +49,7 @@ export const upsert = mutation({
       await ctx.db.insert("studentProfiles", {
         userId: userId as string,
         ...args,
+        verificationStatus: "not_submitted",
         profileCompletionPct,
       });
     }

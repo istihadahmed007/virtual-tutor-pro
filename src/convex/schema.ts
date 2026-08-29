@@ -30,6 +30,8 @@ const schema = defineSchema(
       bio: v.optional(v.string()),
       timezone: v.optional(v.string()),
       phone: v.optional(v.string()),
+      gender: v.optional(v.string()),
+      dateOfBirth: v.optional(v.string()),
       country: v.optional(v.string()),
       preferredLanguage: v.optional(v.string()),
       notificationPrefs: v.optional(
@@ -46,13 +48,31 @@ const schema = defineSchema(
       userId: v.string(),
       name: v.string(),
       avatarUrl: v.optional(v.string()),
+      // Academic info
+      institution: v.optional(v.string()),
+      studentIdNumber: v.optional(v.string()),
       educationLevel: v.optional(v.string()),
+      classLevel: v.optional(v.string()),
+      department: v.optional(v.string()),
+      board: v.optional(v.string()),
       subjects: v.array(v.string()),
       learningGoals: v.array(v.string()),
       skillLevel: v.optional(v.string()),
       preferredTeachingStyle: v.optional(v.string()),
       weeklyHours: v.optional(v.number()),
       bio: v.optional(v.string()),
+      // Verification
+      verificationStatus: v.union(
+        v.literal("not_submitted"),
+        v.literal("pending"),
+        v.literal("verified"),
+        v.literal("rejected"),
+        v.literal("resubmission_required"),
+      ),
+      studentCardUrl: v.optional(v.string()),
+      verificationNotes: v.optional(v.string()),
+      verifiedAt: v.optional(v.number()),
+      // Profile completion
       profileCompletionPct: v.number(),
     }).index("by_user", ["userId"]),
 
@@ -62,34 +82,78 @@ const schema = defineSchema(
       name: v.string(),
       title: v.string(),
       bio: v.string(),
+      // Subjects & Classes
       subjects: v.array(v.string()),
+      classLevels: v.array(v.string()),
       expertise: v.array(v.string()),
-      education: v.string(),
+      // Education
+      education: v.array(
+        v.object({
+          degree: v.string(),
+          institution: v.string(),
+          department: v.optional(v.string()),
+          passingYear: v.optional(v.string()),
+          result: v.optional(v.string()),
+          certificateUrl: v.optional(v.string()),
+        }),
+      ),
       certifications: v.optional(v.array(v.string())),
+      // Languages & Pricing
       languages: v.array(v.string()),
       hourlyRate: v.number(),
+      trialPrice: v.optional(v.number()),
+      price30min: v.optional(v.number()),
+      price60min: v.optional(v.number()),
+      groupPrice: v.optional(v.number()),
+      // Teaching info
+      yearsExperience: v.number(),
+      totalTeachingExperience: v.optional(v.string()),
+      currentPosition: v.optional(v.string()),
+      previousExperience: v.optional(v.string()),
+      teachingStyle: v.optional(v.array(v.string())),
+      targetStudents: v.optional(v.array(v.string())),
+      // Online Teaching Setup
+      onlineTeachingExperience: v.optional(v.string()),
+      preferredPlatforms: v.optional(v.array(v.string())),
+      onlineTools: v.optional(v.array(v.string())),
+      internetQuality: v.optional(v.string()),
+      webcamAvailable: v.optional(v.boolean()),
+      microphoneAvailable: v.optional(v.boolean()),
+      digitalTabletAvailable: v.optional(v.boolean()),
+      screenSharingCapability: v.optional(v.boolean()),
+      // Class Preferences
+      preferredClassDuration: v.optional(v.string()),
+      classTypes: v.optional(v.array(v.string())),
+      maxStudentsPerClass: v.optional(v.number()),
+      // Stats
       rating: v.number(),
       reviewCount: v.number(),
       totalStudents: v.number(),
       totalHours: v.number(),
-      yearsExperience: v.number(),
+      totalClassesCompleted: v.optional(v.number()),
+      // Verification & Profile
       isVerified: v.boolean(),
       isAvailable: v.boolean(),
       avatarUrl: v.optional(v.string()),
       introVideoUrl: v.optional(v.string()),
-      teachingStyle: v.optional(v.array(v.string())),
-      targetStudents: v.optional(v.array(v.string())),
       country: v.optional(v.string()),
       verificationStatus: v.union(
         v.literal("not_started"),
         v.literal("under_review"),
         v.literal("verified"),
         v.literal("needs_attention"),
+        v.literal("rejected"),
       ),
-      trialPrice: v.optional(v.number()),
-      price30min: v.optional(v.number()),
-      price60min: v.optional(v.number()),
-      groupPrice: v.optional(v.number()),
+      rejectionReason: v.optional(v.string()),
+      profileCompletionPct: v.number(),
+      // NID Verification (private - never exposed publicly)
+      nidNumber: v.optional(v.string()),
+      nidFrontUrl: v.optional(v.string()),
+      nidBackUrl: v.optional(v.string()),
+      nidVerified: v.optional(v.boolean()),
+      nidSubmittedAt: v.optional(v.number()),
+      nidReviewedAt: v.optional(v.number()),
+      nidReviewedBy: v.optional(v.string()),
     })
       .index("by_user", ["userId"])
       .index("by_subject", ["subjects"])
@@ -364,6 +428,21 @@ const schema = defineSchema(
         ),
       ),
     }).index("by_user", ["userId"]),
+
+    // ─── Admin Verification Log ──────────────────────────
+    verificationLogs: defineTable({
+      teacherId: v.string(),
+      adminId: v.string(),
+      action: v.union(
+        v.literal("submitted"),
+        v.literal("under_review"),
+        v.literal("approved"),
+        v.literal("rejected"),
+        v.literal("resubmission_requested"),
+      ),
+      reason: v.optional(v.string()),
+      timestamp: v.number(),
+    }).index("by_teacher", ["teacherId"]),
   },
   {
     schemaValidation: false,

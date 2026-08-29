@@ -1,5 +1,5 @@
 import { getAuthUserId } from "@convex-dev/auth/server";
-import { query, mutation, QueryCtx, MutationCtx } from "./_generated/server";
+import { query, mutation } from "./_generated/server";
 import { v } from "convex/values";
 
 // ─── Get all verified teachers ──────────────────────────
@@ -34,28 +34,47 @@ export const get = query({
   },
 });
 
-// ─── Search teachers ───────────────────────────────────
+// ─── Get teacher's own profile ─────────────────────────
+export const getMyProfile = query({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) return null;
+    return await ctx.db
+      .query("teacherProfiles")
+      .filter((q) => q.eq(q.field("userId"), userId as string))
+      .first();
+  },
+});
+
+// ─── Search teachers (online only) ─────────────────────
 export const search = query({
   args: {
     subject: v.optional(v.string()),
-    language: v.optional(v.string()),
+    classLevel: v.optional(v.string()),
     availableOnly: v.optional(v.boolean()),
+    verifiedOnly: v.optional(v.boolean()),
+    classType: v.optional(v.string()),
     sortBy: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
-    let profiles = await ctx.db
-      .query("teacherProfiles")
-      .filter((q) => q.eq(q.field("isVerified"), true))
-      .collect();
+    let profiles = await ctx.db.query("teacherProfiles").collect();
+
+    if (args.verifiedOnly !== false) {
+      profiles = profiles.filter((p) => p.isVerified);
+    }
 
     if (args.subject) {
       profiles = profiles.filter((p) => p.subjects.includes(args.subject!));
     }
-    if (args.language) {
-      profiles = profiles.filter((p) => p.languages.includes(args.language!));
+    if (args.classLevel) {
+      profiles = profiles.filter((p) => p.classLevels.includes(args.classLevel!));
     }
     if (args.availableOnly) {
       profiles = profiles.filter((p) => p.isAvailable);
+    }
+    if (args.classType) {
+      profiles = profiles.filter((p) => p.classTypes?.includes(args.classType!));
     }
 
     switch (args.sortBy) {
@@ -82,21 +101,14 @@ export const search = query({
   },
 });
 
-// ─── Create teacher profile ────────────────────────────
+// ─── Create teacher profile (initial) ─────────────────
 export const createProfile = mutation({
   args: {
     name: v.string(),
-    title: v.string(),
-    bio: v.string(),
-    subjects: v.array(v.string()),
-    expertise: v.array(v.string()),
-    education: v.string(),
-    certifications: v.optional(v.array(v.string())),
-    languages: v.array(v.string()),
-    hourlyRate: v.number(),
-    yearsExperience: v.number(),
-    teachingStyle: v.optional(v.array(v.string())),
-    targetStudents: v.optional(v.array(v.string())),
+    title: v.optional(v.string()),
+    bio: v.optional(v.string()),
+    subjects: v.optional(v.array(v.string())),
+    languages: v.optional(v.array(v.string())),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -111,48 +123,83 @@ export const createProfile = mutation({
     await ctx.db.insert("teacherProfiles", {
       userId: userId as string,
       name: args.name,
-      title: args.title,
-      bio: args.bio,
-      subjects: args.subjects,
-      expertise: args.expertise,
-      education: args.education,
-      certifications: args.certifications,
-      languages: args.languages,
-      hourlyRate: args.hourlyRate,
+      title: args.title || "",
+      bio: args.bio || "",
+      subjects: args.subjects || [],
+      classLevels: [],
+      expertise: [],
+      education: [],
+      languages: args.languages || [],
+      hourlyRate: 0,
+      yearsExperience: 0,
       rating: 0,
       reviewCount: 0,
       totalStudents: 0,
       totalHours: 0,
-      yearsExperience: args.yearsExperience,
+      totalClassesCompleted: 0,
       isVerified: false,
       isAvailable: false,
-      teachingStyle: args.teachingStyle,
-      targetStudents: args.targetStudents,
       verificationStatus: "not_started",
+      profileCompletionPct: 10,
     });
 
-    // Update user role to teacher
     await ctx.db.patch(userId, { role: "teacher" });
 
     return { success: true };
   },
 });
 
-// ─── Update teacher profile ────────────────────────────
+// ─── Update teacher profile (step by step) ─────────────
 export const updateProfile = mutation({
   args: {
     name: v.optional(v.string()),
     title: v.optional(v.string()),
     bio: v.optional(v.string()),
     subjects: v.optional(v.array(v.string())),
+    classLevels: v.optional(v.array(v.string())),
     expertise: v.optional(v.array(v.string())),
-    education: v.optional(v.string()),
+    education: v.optional(
+      v.array(
+        v.object({
+          degree: v.string(),
+          institution: v.string(),
+          department: v.optional(v.string()),
+          passingYear: v.optional(v.string()),
+          result: v.optional(v.string()),
+          certificateUrl: v.optional(v.string()),
+        }),
+      ),
+    ),
     certifications: v.optional(v.array(v.string())),
     languages: v.optional(v.array(v.string())),
     hourlyRate: v.optional(v.number()),
+    trialPrice: v.optional(v.number()),
+    price30min: v.optional(v.number()),
+    price60min: v.optional(v.number()),
+    groupPrice: v.optional(v.number()),
     yearsExperience: v.optional(v.number()),
+    totalTeachingExperience: v.optional(v.string()),
+    currentPosition: v.optional(v.string()),
+    previousExperience: v.optional(v.string()),
     teachingStyle: v.optional(v.array(v.string())),
+    targetStudents: v.optional(v.array(v.string())),
+    // Online teaching
+    onlineTeachingExperience: v.optional(v.string()),
+    preferredPlatforms: v.optional(v.array(v.string())),
+    onlineTools: v.optional(v.array(v.string())),
+    internetQuality: v.optional(v.string()),
+    webcamAvailable: v.optional(v.boolean()),
+    microphoneAvailable: v.optional(v.boolean()),
+    digitalTabletAvailable: v.optional(v.boolean()),
+    screenSharingCapability: v.optional(v.boolean()),
+    // Class preferences
+    preferredClassDuration: v.optional(v.string()),
+    classTypes: v.optional(v.array(v.string())),
+    maxStudentsPerClass: v.optional(v.number()),
+    // General
     isAvailable: v.optional(v.boolean()),
+    country: v.optional(v.string()),
+    avatarUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -169,7 +216,81 @@ export const updateProfile = mutation({
       if (value !== undefined) updates[key] = value;
     }
 
+    // Calculate profile completion
+    const p = { ...profile, ...updates };
+    const fields = [
+      p.name, p.title, p.bio, p.subjects.length > 0, p.education.length > 0,
+      p.languages.length > 0, p.hourlyRate > 0, p.yearsExperience > 0,
+      p.onlineTeachingExperience, (p.preferredPlatforms && p.preferredPlatforms.length > 0),
+      (p.classTypes && p.classTypes.length > 0), p.preferredClassDuration,
+    ];
+    const filled = fields.filter(Boolean).length;
+    updates.profileCompletionPct = Math.round((filled / fields.length) * 100);
+
     await ctx.db.patch(profile._id, updates);
+    return { success: true };
+  },
+});
+
+// ─── Submit for verification ───────────────────────────
+export const submitForVerification = mutation({
+  args: {},
+  handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+      .query("teacherProfiles")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .first();
+    if (!profile) throw new Error("Profile not found");
+
+    // Check NID is submitted
+    if (!profile.nidNumber || !profile.nidFrontUrl || !profile.nidBackUrl) {
+      throw new Error("NID verification documents are required");
+    }
+
+    await ctx.db.patch(profile._id, {
+      verificationStatus: "under_review",
+      nidSubmittedAt: Date.now(),
+    });
+
+    await ctx.db.insert("verificationLogs", {
+      teacherId: userId as string,
+      adminId: userId as string,
+      action: "submitted",
+      timestamp: Date.now(),
+    });
+
+    return { success: true };
+  },
+});
+
+// ─── Submit NID verification ───────────────────────────
+export const submitNidVerification = mutation({
+  args: {
+    nidNumber: v.string(),
+    nidFrontUrl: v.string(),
+    nidBackUrl: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+
+    const profile = await ctx.db
+      .query("teacherProfiles")
+      .filter((q) => q.eq(q.field("userId"), userId))
+      .first();
+    if (!profile) throw new Error("Profile not found");
+
+    await ctx.db.patch(profile._id, {
+      nidNumber: args.nidNumber,
+      nidFrontUrl: args.nidFrontUrl,
+      nidBackUrl: args.nidBackUrl,
+      nidVerified: false,
+      nidSubmittedAt: Date.now(),
+    });
+
     return { success: true };
   },
 });
@@ -207,7 +328,6 @@ export const setAvailability = mutation({
       .first();
     if (!profile) throw new Error("Teacher profile not found");
 
-    // Delete existing availability
     const existing = await ctx.db
       .query("availability")
       .filter((q) => q.eq(q.field("teacherId"), profile.userId))
@@ -216,7 +336,6 @@ export const setAvailability = mutation({
       await ctx.db.delete(slot._id);
     }
 
-    // Insert new availability
     for (const slot of args.slots) {
       await ctx.db.insert("availability", {
         teacherId: profile.userId,

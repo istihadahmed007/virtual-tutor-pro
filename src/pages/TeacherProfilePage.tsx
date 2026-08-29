@@ -251,12 +251,16 @@ export default function TeacherProfilePage() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  <div className="flex items-start gap-3">
-                    <Award className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
-                    <span className="text-sm text-slate-700">
-                      {teacher.education}
-                    </span>
-                  </div>
+                  {teacher.education.map((edu: { degree: string; institution: string; department?: string; passingYear?: string; result?: string }, i: number) => (
+                    <div key={i} className="flex items-start gap-3">
+                      <Award className="w-4 h-4 text-teal-500 mt-0.5 shrink-0" />
+                      <div>
+                        <span className="text-sm text-slate-700 font-medium">{edu.degree}</span>
+                        <p className="text-xs text-slate-500">{edu.institution}{edu.department ? ` — ${edu.department}` : ""}{edu.passingYear ? ` (${edu.passingYear})` : ""}</p>
+                        {edu.result && <p className="text-xs text-slate-400">{edu.result}</p>}
+                      </div>
+                    </div>
+                  ))}
                   {(teacher.certifications ?? []).map((cert, i) => (
                     <div key={i} className="flex items-start gap-3">
                       <CheckCircle className="w-4 h-4 text-emerald-500 mt-0.5 shrink-0" />

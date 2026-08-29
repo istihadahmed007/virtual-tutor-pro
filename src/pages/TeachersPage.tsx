@@ -41,7 +41,6 @@ export default function TeachersPage() {
 
   const teachers = useQuery(api.teachers.search, {
     subject: selectedSubject || undefined,
-    language: selectedLanguage || undefined,
     availableOnly: showAvailableOnly || undefined,
     sortBy,
   });
