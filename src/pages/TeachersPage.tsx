@@ -293,17 +293,17 @@ function TeacherCard({
 }) {
   return (
     <div
-      className="bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-xl hover:shadow-teal-500/5 transition-all cursor-pointer group overflow-hidden"
+      className="bg-white rounded-xl border border-stone-200/80 hover:border-teal-200 hover:shadow-lg transition-all cursor-pointer group overflow-hidden"
       onClick={() => navigate(`/teachers/${teacher.userId}`)}
     >
-      <div className="p-5 pt-4">
+      <div className="p-5">
         <div className="flex items-start gap-4">
           <div className="relative">
-            <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-teal-500/20 group-hover:scale-105 transition-transform">
+            <div className="w-14 h-14 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg group-hover:scale-105 transition-transform">
               {teacher.name.charAt(0)}
             </div>
             {teacher.isAvailable && (
-              <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 bg-emerald-400 border-2 border-white rounded-full" />
+              <div className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 bg-emerald-400 border-2 border-white rounded-full" />
             )}
           </div>
           <div className="flex-1 min-w-0">
@@ -326,7 +326,7 @@ function TeacherCard({
                     </span>
                   </div>
                   <span className="text-xs text-slate-400">
-                    ({teacher.reviewCount} reviews)
+                    ({teacher.reviewCount})
                   </span>
                   <span className="text-slate-200">·</span>
                 </>
@@ -335,6 +335,10 @@ function TeacherCard({
                 <Clock className="w-3 h-3" />
                 {teacher.yearsExperience}yr
               </div>
+              <span className="text-slate-200">·</span>
+              <span className="text-[10px] font-semibold px-1.5 py-0.5 bg-teal-50 text-teal-700 rounded-full">
+                Online
+              </span>
             </div>
           </div>
         </div>
@@ -342,7 +346,7 @@ function TeacherCard({
           {teacher.bio}
         </p>
         <div className="flex items-center gap-1.5 mt-3 flex-wrap">
-          {teacher.subjects.map((s: string) => (
+          {teacher.subjects.slice(0, 4).map((s: string) => (
             <span
               key={s}
               className="px-2 py-0.5 bg-stone-100 text-slate-600 text-[10px] font-medium rounded-full"
@@ -350,14 +354,11 @@ function TeacherCard({
               {s}
             </span>
           ))}
-          {teacher.languages.map((l: string) => (
-            <span
-              key={l}
-              className="px-2 py-0.5 bg-sky-50 text-sky-600 text-[10px] font-medium rounded-full"
-            >
-              {l}
+          {teacher.subjects.length > 4 && (
+            <span className="px-2 py-0.5 text-slate-400 text-[10px] font-medium">
+              +{teacher.subjects.length - 4}
             </span>
-          ))}
+          )}
         </div>
         <div className="flex items-center justify-between mt-4 pt-3 border-t border-stone-100">
           <div>
@@ -374,7 +375,7 @@ function TeacherCard({
               navigate(`/teachers/${teacher.userId}`);
             }}
           >
-            Book Session
+            View profile
           </Button>
         </div>
       </div>

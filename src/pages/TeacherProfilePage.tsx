@@ -323,6 +323,41 @@ export default function TeacherProfilePage() {
 
           {/* Booking Sidebar */}
           <div className="space-y-6">
+            {/* Is this tutor right for you? */}
+            <Card className="border-stone-200/80">
+              <CardContent className="p-5">
+                <h3 className="text-sm font-bold text-slate-900 mb-3">
+                  Is this tutor right for you?
+                </h3>
+                <div className="space-y-2">
+                  {[
+                    teacher.subjects.length > 0
+                      ? { text: `Teaches ${teacher.subjects.slice(0, 3).join(", ")}${teacher.subjects.length > 3 ? ` +${teacher.subjects.length - 3} more` : ""}` }
+                      : null,
+                    teacher.languages.length > 0
+                      ? { text: `Speaks ${teacher.languages.join(", ")}` }
+                      : null,
+                    teacher.isAvailable
+                      ? { text: "Available for new students" }
+                      : null,
+                    teacher.yearsExperience > 0
+                      ? { text: `${teacher.yearsExperience} years of experience` }
+                      : null,
+                    teacher.rating > 0
+                      ? { text: `${teacher.rating} average rating from ${teacher.reviewCount} reviews` }
+                      : null,
+                  ]
+                    .filter((item): item is { text: string } => item !== null)
+                    .map((item, i) => (
+                      <div key={i} className="flex items-center gap-2">
+                        <CheckCircle className="w-4 h-4 text-teal-500 shrink-0" />
+                        <span className="text-sm text-slate-600">{item.text}</span>
+                      </div>
+                    ))}
+                </div>
+              </CardContent>
+            </Card>
+
             <Card className="border-stone-200/80 sticky top-20">
               <CardContent className="p-5">
                 <div className="text-center mb-4">
@@ -349,7 +384,7 @@ export default function TeacherProfilePage() {
                   className="w-full bg-teal-600 hover:bg-teal-700 text-white"
                   size="lg"
                 >
-                  Book a Live Session
+                  Book a live session
                 </Button>
                 <p className="text-[10px] text-slate-400 text-center mt-3">
                   Free cancellation up to 2 hours before class

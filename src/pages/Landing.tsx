@@ -12,18 +12,21 @@ import {
   BookOpen,
   Shield,
   Clock,
-  Zap,
-  ChevronRight,
-  Globe,
   Target,
   TrendingUp,
   CheckCircle,
-  Play,
-  Pen,
-  MonitorUp,
-  Hand,
-  Smile,
-  FileText,
+  ChevronRight,
+  Globe,
+  Zap,
+  Brain,
+  Calendar,
+  PenTool,
+  LineChart,
+  Heart,
+  Award,
+  HelpCircle,
+  ArrowRightCircle,
+  Sparkles,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
@@ -31,11 +34,18 @@ import { subjects } from "@/lib/data";
 import { LazyImage } from "@/components/images/LazyImage";
 import { HERO_IMAGE, LIVE_CLASS_IMAGE } from "@/lib/images";
 
+const fadeUp = {
+  initial: { opacity: 0, y: 24 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true, margin: "-40px" },
+};
+
+const stagger = { transition: { staggerChildren: 0.08 } };
+
 export default function Landing() {
   const navigate = useNavigate();
   const { isAuthenticated } = useAuth();
   const teachers = useQuery(api.teachers.list);
-  const stats = useQuery(api.users.getStats);
   const teacherCount = teachers?.length ?? 0;
 
   const handleCTA = (path = "/auth") => {
@@ -48,21 +58,67 @@ export default function Landing() {
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-stone-200/60 z-50">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <button onClick={() => navigate("/")} className="flex items-center gap-2.5">
-              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center shadow-md shadow-teal-600/20">
+            <button
+              onClick={() => navigate("/")}
+              className="flex items-center gap-2.5"
+            >
+              <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-teal-600 to-teal-700 flex items-center justify-center">
                 <GraduationCap className="w-5 h-5 text-white" />
               </div>
-              <span className="text-xl font-bold text-slate-800">Live<span className="text-teal-600">Class</span></span>
+              <span className="text-xl font-bold text-slate-800">
+                Virtual Tutor <span className="text-teal-600">Pro</span>
+              </span>
             </button>
             <div className="hidden md:flex items-center gap-6">
-              <a href="#how-it-works" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">How It Works</a>
-              <a href="#features" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Features</a>
-              <a href="#subjects" className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors">Subjects</a>
+              <a
+                href="#how-it-works"
+                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
+              >
+                How it works
+              </a>
+              <a
+                href="#features"
+                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
+              >
+                Features
+              </a>
+              <a
+                href="#for-tutors"
+                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
+              >
+                For tutors
+              </a>
+              <a
+                href="#faq"
+                className="text-sm font-medium text-slate-600 hover:text-teal-700 transition-colors"
+              >
+                FAQ
+              </a>
             </div>
             <div className="flex items-center gap-3">
-              <button onClick={() => handleCTA()} className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl shadow-md shadow-teal-600/20 transition-all hover:shadow-lg active:scale-95">
-                {isAuthenticated ? "Dashboard" : "Get Started"}
-              </button>
+              {isAuthenticated ? (
+                <button
+                  onClick={() => navigate("/dashboard")}
+                  className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+                >
+                  Dashboard
+                </button>
+              ) : (
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => navigate("/auth")}
+                    className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 transition-colors"
+                  >
+                    Sign in
+                  </button>
+                  <button
+                    onClick={() => navigate("/auth")}
+                    className="px-5 py-2.5 bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold rounded-xl transition-all active:scale-95"
+                  >
+                    Get started
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -76,60 +132,80 @@ export default function Landing() {
         </div>
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            {/* Left: Text */}
-            <motion.div initial={{ opacity: 0, y: 40 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
+            <motion.div {...fadeUp} transition={{ duration: 0.7 }}>
               <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-teal-50 border border-teal-100 rounded-full text-teal-700 text-xs font-semibold mb-6">
                 <Video className="w-3.5 h-3.5" />
                 Live classes with real tutors
               </div>
               <h1 className="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-extrabold text-slate-900 leading-tight tracking-tight">
-                Learn from Real Tutors.
-                <span className="block text-teal-600">Practice with AI.</span>
-                <span className="block text-slate-700">Grow with Confidence.</span>
+                Learn with the right tutor.
+                <span className="block text-teal-600">
+                  Progress with confidence.
+                </span>
               </h1>
               <p className="mt-6 text-lg sm:text-xl text-slate-500 max-w-xl leading-relaxed">
-                Book live 1-on-1 sessions with verified tutors, practice with AI study tools, and track your learning progress — all in one platform.
+                Find trusted tutors, book focused lessons, and build learning
+                momentum with feedback and progress tracking designed around your
+                goals.
               </p>
 
               <div className="mt-10 flex flex-col sm:flex-row items-start gap-4">
-                <button onClick={() => handleCTA("/auth")} className="group px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-xl shadow-teal-600/20 transition-all hover:shadow-2xl flex items-center gap-2.5 text-base active:scale-95">
-                  Start Learning
+                <button
+                  onClick={() => handleCTA("/auth")}
+                  className="group px-8 py-4 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded-2xl shadow-lg shadow-teal-600/15 transition-all flex items-center gap-2.5 text-base active:scale-95"
+                >
+                  Find a tutor
                   <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                 </button>
-                <button onClick={() => handleCTA("/auth")} className="px-8 py-4 bg-white border-2 border-stone-200 hover:border-teal-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-teal-50/50 flex items-center gap-2 text-base">
-                  Become a Tutor
+                <button
+                  onClick={() =>
+                    document
+                      .getElementById("how-it-works")
+                      ?.scrollIntoView({ behavior: "smooth" })
+                  }
+                  className="px-8 py-4 bg-white border-2 border-stone-200 hover:border-teal-300 text-slate-700 font-semibold rounded-2xl transition-all hover:bg-teal-50/50 flex items-center gap-2 text-base"
+                >
+                  How it works
                 </button>
               </div>
 
-              {/* Trust indicators — only show real data */}
               <div className="mt-10 flex flex-col sm:flex-row items-start gap-6 text-sm text-slate-500">
                 <div className="flex items-center gap-2">
-                  <Users className="w-4 h-4 text-teal-500" />
-                  <span className="font-semibold text-slate-700">{teacherCount}</span> verified tutors
-                </div>
-                <div className="flex items-center gap-1.5">
                   <Shield className="w-4 h-4 text-teal-500" />
-                  <span className="font-semibold text-slate-700">All tutors verified</span>
+                  <span className="font-semibold text-slate-700">
+                    {teacherCount} verified tutors
+                  </span>
                 </div>
                 <div className="flex items-center gap-1.5">
-                  <Star className="w-4 h-4 fill-amber-400 text-amber-400" />
-                  <span className="font-semibold text-slate-700">{stats?.totalLessons ?? 0}</span> lessons completed
+                  <CheckCircle className="w-4 h-4 text-teal-500" />
+                  <span className="font-semibold text-slate-700">
+                    Personalized learning
+                  </span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <Clock className="w-4 h-4 text-teal-500" />
+                  <span className="font-semibold text-slate-700">
+                    Flexible scheduling
+                  </span>
                 </div>
               </div>
             </motion.div>
 
-            {/* Right: Hero Image */}
-            <motion.div initial={{ opacity: 0, scale: 0.95, x: 40 }} animate={{ opacity: 1, scale: 1, x: 0 }} transition={{ duration: 0.9, delay: 0.2 }} className="relative hidden lg:block">
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, x: 40 }}
+              animate={{ opacity: 1, scale: 1, x: 0 }}
+              transition={{ duration: 0.9, delay: 0.2 }}
+              className="relative hidden lg:block"
+            >
               <div className="relative">
                 <LazyImage
                   src={HERO_IMAGE}
-                  alt="A tutor conducting a live video lesson with a student, engaged in a friendly and focused conversation"
+                  alt="A tutor conducting a live video lesson with a student"
                   aspectRatio="4/3"
                   className="rounded-3xl"
                   wrapperClassName="rounded-3xl shadow-2xl shadow-slate-200/80"
                   priority
                 />
-                {/* Floating card: Live */}
                 <div className="absolute -bottom-4 -left-4 bg-white rounded-2xl p-3.5 shadow-xl shadow-slate-200/60 border border-stone-100">
                   <div className="flex items-center gap-2.5">
                     <div className="relative">
@@ -139,20 +215,28 @@ export default function Landing() {
                       <div className="absolute -top-0.5 -right-0.5 w-3 h-3 bg-emerald-400 rounded-full border-2 border-white animate-pulse" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">Live Session</p>
-                      <p className="text-[10px] text-emerald-600 font-semibold">In progress</p>
+                      <p className="text-xs font-bold text-slate-900">
+                        Live session
+                      </p>
+                      <p className="text-[10px] text-emerald-600 font-semibold">
+                        In progress
+                      </p>
                     </div>
                   </div>
                 </div>
-                {/* Floating card: Rating */}
                 <div className="absolute -top-3 -right-3 bg-white rounded-2xl p-3 shadow-xl shadow-slate-200/60 border border-stone-100">
                   <div className="flex items-center gap-1.5">
                     <div className="flex items-center gap-0.5">
                       {[1, 2, 3, 4, 5].map((i) => (
-                        <Star key={i} className="w-3 h-3 fill-amber-400 text-amber-400" />
+                        <Star
+                          key={i}
+                          className="w-3 h-3 fill-amber-400 text-amber-400"
+                        />
                       ))}
                     </div>
-                    <span className="text-xs font-bold text-slate-900">4.9</span>
+                    <span className="text-xs font-bold text-slate-900">
+                      4.9
+                    </span>
                   </div>
                 </div>
               </div>
@@ -164,25 +248,133 @@ export default function Landing() {
       {/* How It Works */}
       <section id="how-it-works" className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">How LiveClass Works</h2>
-            <p className="mt-3 text-slate-500 max-w-lg mx-auto">From sign-up to your first lesson in minutes</p>
+          <motion.div {...fadeUp} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              A clearer path from question to confidence
+            </h2>
+            <p className="mt-3 text-slate-500 max-w-lg mx-auto">
+              Four steps to measurable progress
+            </p>
           </motion.div>
           <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
             {[
-              { step: "01", title: "Create Your Profile", desc: "Select subjects, education level, learning goals, and preferred language.", icon: Target, color: "from-teal-500 to-teal-600" },
-              { step: "02", title: "Find the Right Tutor", desc: "Filter by subject, experience, language, price, and availability.", icon: Search, color: "from-amber-500 to-amber-600" },
-              { step: "03", title: "Join a Live Class", desc: "Video, whiteboard, screen share, chat, file sharing, and more.", icon: Video, color: "from-indigo-500 to-indigo-600" },
-              { step: "04", title: "Track Your Growth", desc: "Lessons, progress, assignments, tutor feedback, and certificates.", icon: TrendingUp, color: "from-rose-500 to-rose-600" },
+              {
+                step: "01",
+                title: "Choose a goal",
+                desc: "Tell us what you want to learn and your current level. We'll match you with tutors who teach your exact subject.",
+                icon: Target,
+                color: "from-teal-500 to-teal-600",
+              },
+              {
+                step: "02",
+                title: "Meet the right tutor",
+                desc: "Browse verified profiles, check availability, and book a trial lesson. No commitment required.",
+                icon: Users,
+                color: "from-amber-500 to-amber-600",
+              },
+              {
+                step: "03",
+                title: "Practice with feedback",
+                desc: "Join live video lessons, complete assignments, and get detailed feedback on your progress.",
+                icon: PenTool,
+                color: "from-indigo-500 to-indigo-600",
+              },
+              {
+                step: "04",
+                title: "Measure progress",
+                desc: "Track completed lessons, grades, and learning streaks. See how far you've come.",
+                icon: LineChart,
+                color: "from-rose-500 to-rose-600",
+              },
             ].map((s, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="relative text-center">
-                <div className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-4 shadow-lg`}>
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ delay: i * 0.1 }}
+                className="relative text-center"
+              >
+                <div
+                  className={`w-14 h-14 rounded-2xl bg-gradient-to-br ${s.color} flex items-center justify-center mx-auto mb-4`}
+                >
                   <s.icon className="w-6 h-6 text-white" />
                 </div>
-                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">Step {s.step}</span>
-                <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">{s.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{s.desc}</p>
-                {i < 3 && <ChevronRight className="hidden md:block absolute top-7 -right-3 w-5 h-5 text-slate-300" />}
+                <span className="text-xs font-bold text-slate-400 uppercase tracking-wider">
+                  Step {s.step}
+                </span>
+                <h3 className="text-base font-bold text-slate-900 mt-1 mb-2">
+                  {s.title}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {s.desc}
+                </p>
+                {i < 3 && (
+                  <ChevronRight className="hidden md:block absolute top-7 -right-3 w-5 h-5 text-slate-300" />
+                )}
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Everything you need */}
+      <section id="features" className="py-16 lg:py-24 bg-[#FAFAF8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeUp} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Everything you need to keep learning
+            </h2>
+            <p className="mt-3 text-slate-500 max-w-lg mx-auto">
+              Tools designed to support real learning, not just consume content
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto">
+            {[
+              {
+                icon: Search,
+                title: "Tutor discovery",
+                desc: "Search by subject, filter by level, language, price, and availability. Every tutor is credential-verified.",
+              },
+              {
+                icon: Video,
+                title: "Live video lessons",
+                desc: "Real-time HD video with whiteboard, screen share, chat, and file sharing. Not pre-recorded content.",
+              },
+              {
+                icon: BookOpen,
+                title: "Assignments and feedback",
+                desc: "Submit work, get grades and detailed feedback from your tutor. Track due dates and revisions.",
+              },
+              {
+                icon: LineChart,
+                title: "Progress tracking",
+                desc: "See completed lessons, hours studied, assignment scores, and learning consistency over time.",
+              },
+              {
+                icon: Sparkles,
+                title: "AI study companion",
+                desc: "Ask for explanations, practice questions, and study plans. A helpful supplement to your tutor.",
+              },
+              {
+                icon: MessageCircle,
+                title: "Direct messaging",
+                desc: "Message your tutor between lessons. Ask quick questions, share materials, and stay on track.",
+              },
+            ].map((f, i) => (
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ delay: i * 0.06 }}
+                className="p-5 rounded-2xl border border-stone-200/80 hover:border-stone-300/80 hover:shadow-md transition-all bg-white"
+              >
+                <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center mb-3">
+                  <f.icon className="w-5 h-5 text-teal-600" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-1.5">
+                  {f.title}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {f.desc}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -190,14 +382,14 @@ export default function Landing() {
       </section>
 
       {/* Live Class Experience */}
-      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
+      <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
-            <motion.div initial={{ opacity: 0, x: -40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
+            <motion.div {...fadeUp}>
               <div className="relative">
                 <LazyImage
                   src={LIVE_CLASS_IMAGE}
-                  alt="Teacher explaining a topic on a digital whiteboard during a live video class, with real-time interaction and screen sharing"
+                  alt="Teacher explaining a topic on a digital whiteboard during a live video class"
                   aspectRatio="4/3"
                   className="rounded-3xl"
                   wrapperClassName="rounded-3xl shadow-2xl shadow-slate-200/60"
@@ -208,35 +400,47 @@ export default function Landing() {
                       <MessageCircle className="w-4 h-4 text-indigo-600" />
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-slate-900">Real-time chat</p>
-                      <p className="text-[10px] text-slate-400">Ask questions live</p>
+                      <p className="text-xs font-bold text-slate-900">
+                        Real-time chat
+                      </p>
+                      <p className="text-[10px] text-slate-400">
+                        Ask questions live
+                      </p>
                     </div>
                   </div>
                 </div>
               </div>
             </motion.div>
 
-            <motion.div initial={{ opacity: 0, x: 40 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.15 }}>
+            <motion.div {...fadeUp} transition={{ delay: 0.15 }}>
               <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
-                Your classroom, <span className="text-teal-600">wherever you are</span>
+                Your classroom,{" "}
+                <span className="text-teal-600">wherever you are</span>
               </h2>
               <p className="mt-5 text-lg text-slate-500 leading-relaxed">
-                Not pre-recorded videos. Not chatbots. A real tutor explaining concepts, answering your questions, and guiding you through practice — live, in real-time.
+                Not pre-recorded videos. Not chatbots. A real tutor explaining
+                concepts, answering your questions, and guiding you through
+                practice — live, in real-time.
               </p>
               <div className="mt-8 grid grid-cols-2 gap-3">
                 {[
                   { icon: Video, label: "HD Video" },
-                  { icon: MessageCircle, label: "Live Chat" },
-                  { icon: Pen, label: "Whiteboard" },
-                  { icon: MonitorUp, label: "Screen Share" },
-                  { icon: Hand, label: "Hand Raise" },
-                  { icon: Smile, label: "Reactions" },
-                  { icon: FileText, label: "Notes" },
+                  { icon: MessageCircle, label: "Live chat" },
+                  { icon: PenTool, label: "Whiteboard" },
+                  { icon: Globe, label: "Screen share" },
+                  { icon: Zap, label: "Hand raise" },
+                  { icon: Heart, label: "Reactions" },
+                  { icon: BookOpen, label: "Notes" },
                   { icon: Clock, label: "Timer" },
                 ].map((f, i) => (
-                  <div key={i} className="flex items-center gap-2.5 p-3 bg-white rounded-xl border border-stone-200/80">
+                  <div
+                    key={i}
+                    className="flex items-center gap-2.5 p-3 bg-[#FAFAF8] rounded-xl border border-stone-200/80"
+                  >
                     <f.icon className="w-4 h-4 text-teal-600" />
-                    <span className="text-sm font-medium text-slate-700">{f.label}</span>
+                    <span className="text-sm font-medium text-slate-700">
+                      {f.label}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -245,27 +449,227 @@ export default function Landing() {
         </div>
       </section>
 
-      {/* Features */}
-      <section id="features" className="py-16 lg:py-24 bg-white">
+      {/* For Students */}
+      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Everything You Need to Learn</h2>
-          </motion.div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {[
-              { icon: Video, title: "Live Video Classes", desc: "Real-time interaction with your tutor. Not pre-recorded — actual live learning.", color: "bg-teal-50 text-teal-600" },
-              { icon: Shield, title: "Verified Experts", desc: "Every tutor is credential-verified. Learn from verified professionals.", color: "bg-indigo-50 text-indigo-600" },
-              { icon: BookOpen, title: "AI Study Assistant", desc: "After each class, get AI-generated summaries, practice questions, and homework.", color: "bg-purple-50 text-purple-600" },
-              { icon: TrendingUp, title: "Progress Tracking", desc: "Track completed lessons, hours, streaks, and subject mastery.", color: "bg-rose-50 text-rose-600" },
-              { icon: Globe, title: "Learn in Your Language", desc: "Tutors available in English, বাংলা, and other languages.", color: "bg-emerald-50 text-emerald-600" },
-              { icon: Zap, title: "Flexible Scheduling", desc: "Book sessions that fit your schedule. Morning, evening, or weekends.", color: "bg-amber-50 text-amber-600" },
-            ].map((f, i) => (
-              <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="p-5 rounded-2xl border border-stone-200/80 hover:shadow-lg hover:shadow-stone-200/50 transition-all">
-                <div className={`w-10 h-10 rounded-xl ${f.color} flex items-center justify-center mb-3`}>
-                  <f.icon className="w-5 h-5" />
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div {...fadeUp}>
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                For students who want to{" "}
+                <span className="text-teal-600">actually learn</span>
+              </h2>
+              <p className="mt-4 text-slate-500 leading-relaxed">
+                Whether you're preparing for exams, learning a new skill, or need
+                help with homework — find a tutor who understands your goals and
+                teaches at your pace.
+              </p>
+              <div className="mt-8 space-y-4">
+                {[
+                  "Search tutors by subject, level, language, and price",
+                  "Book trial lessons before committing",
+                  "Get assignments graded with detailed feedback",
+                  "Track your progress across subjects and sessions",
+                  "Message your tutor anytime between lessons",
+                  "Use the AI assistant for extra practice and explanations",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                    <span className="text-sm text-slate-600">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => handleCTA("/auth")}
+                className="mt-8 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all active:scale-95"
+              >
+                Start learning
+              </button>
+            </motion.div>
+            <motion.div {...fadeUp} transition={{ delay: 0.1 }}>
+              <div className="bg-white rounded-2xl border border-stone-200/80 p-6 space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center text-white font-bold text-lg">
+                    A
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">
+                      Your dashboard at a glance
+                    </p>
+                    <p className="text-xs text-slate-400">
+                      Everything you need, one click away
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-base font-bold text-slate-900 mb-1.5">{f.title}</h3>
-                <p className="text-sm text-slate-500 leading-relaxed">{f.desc}</p>
+                <div className="grid grid-cols-2 gap-3">
+                  {[
+                    {
+                      icon: Calendar,
+                      label: "Next lesson",
+                      value: "Tomorrow, 4:00 PM",
+                      color: "bg-teal-50 text-teal-600",
+                    },
+                    {
+                      icon: BookOpen,
+                      label: "Pending work",
+                      value: "2 assignments",
+                      color: "bg-amber-50 text-amber-600",
+                    },
+                    {
+                      icon: TrendingUp,
+                      label: "This week",
+                      value: "5 hours studied",
+                      color: "bg-indigo-50 text-indigo-600",
+                    },
+                    {
+                      icon: Award,
+                      label: "Streak",
+                      value: "12 days",
+                      color: "bg-rose-50 text-rose-600",
+                    },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="p-3 bg-[#FAFAF8] rounded-xl border border-stone-200/60"
+                    >
+                      <div
+                        className={`w-8 h-8 rounded-lg ${item.color} flex items-center justify-center mb-2`}
+                      >
+                        <item.icon className="w-4 h-4" />
+                      </div>
+                      <p className="text-[10px] text-slate-400 font-medium">
+                        {item.label}
+                      </p>
+                      <p className="text-xs font-bold text-slate-900">
+                        {item.value}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* For Tutors */}
+      <section id="for-tutors" className="py-16 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="grid lg:grid-cols-2 gap-12 items-center">
+            <motion.div {...fadeUp} className="order-2 lg:order-1">
+              <div className="bg-[#FAFAF8] rounded-2xl border border-stone-200/80 p-6 space-y-4">
+                <p className="text-sm font-bold text-slate-900">
+                  Teacher dashboard
+                </p>
+                <div className="space-y-3">
+                  {[
+                    {
+                      icon: Calendar,
+                      text: "See today's schedule and upcoming lessons",
+                    },
+                    {
+                      icon: PenTool,
+                      text: "Review submitted assignments and add feedback",
+                    },
+                    {
+                      icon: Users,
+                      text: "Manage your students and their progress",
+                    },
+                    {
+                      icon: Clock,
+                      text: "Set your availability and accept bookings",
+                    },
+                  ].map((item, i) => (
+                    <div
+                      key={i}
+                      className="flex items-center gap-3 p-3 bg-white rounded-xl border border-stone-200/60"
+                    >
+                      <item.icon className="w-4 h-4 text-teal-500 shrink-0" />
+                      <span className="text-sm text-slate-600">{item.text}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+            <motion.div {...fadeUp} className="order-1 lg:order-2">
+              <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 leading-tight">
+                Build your teaching practice,{" "}
+                <span className="text-teal-600">your way</span>
+              </h2>
+              <p className="mt-4 text-slate-500 leading-relaxed">
+                Set your schedule, define your subjects, and teach online to
+                students who are looking for exactly what you offer. We handle
+                bookings, scheduling, and the classroom — you focus on teaching.
+              </p>
+              <div className="mt-8 space-y-4">
+                {[
+                  "Set your own schedule and availability",
+                  "Define your subjects, class types, and pricing",
+                  "Get matched with students who need your expertise",
+                  "Manage assignments, grades, and feedback in one place",
+                  "Track student progress and session history",
+                  "Build your verified tutor profile and reputation",
+                ].map((item, i) => (
+                  <div key={i} className="flex items-start gap-3">
+                    <CheckCircle className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                    <span className="text-sm text-slate-600">{item}</span>
+                  </div>
+                ))}
+              </div>
+              <button
+                onClick={() => handleCTA("/auth")}
+                className="mt-8 px-6 py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl transition-all active:scale-95"
+              >
+                Become a tutor
+              </button>
+            </motion.div>
+          </div>
+        </div>
+      </section>
+
+      {/* Designed for real progress */}
+      <section className="py-16 lg:py-24 bg-[#FAFAF8]">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeUp} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Designed for real progress
+            </h2>
+            <p className="mt-3 text-slate-500 max-w-lg mx-auto">
+              Learning that shows results, not just activity
+            </p>
+          </motion.div>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-4xl mx-auto">
+            {[
+              {
+                icon: Shield,
+                title: "Verified tutors",
+                desc: "Every tutor goes through credential verification. Learn from professionals you can trust.",
+              },
+              {
+                icon: Brain,
+                title: "Structured learning",
+                desc: "Lessons, assignments, and feedback work together. Not isolated sessions — a coherent learning path.",
+              },
+              {
+                icon: LineChart,
+                title: "Measurable outcomes",
+                desc: "Track hours, grades, streaks, and completion rates. See your growth over weeks and months.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ delay: i * 0.1 }}
+                className="text-center p-6 rounded-2xl bg-white border border-stone-200/80"
+              >
+                <div className="w-12 h-12 rounded-xl bg-teal-50 flex items-center justify-center mx-auto mb-4">
+                  <item.icon className="w-6 h-6 text-teal-600" />
+                </div>
+                <h3 className="text-base font-bold text-slate-900 mb-2">
+                  {item.title}
+                </h3>
+                <p className="text-sm text-slate-500 leading-relaxed">
+                  {item.desc}
+                </p>
               </motion.div>
             ))}
           </div>
@@ -273,15 +677,25 @@ export default function Landing() {
       </section>
 
       {/* Subjects */}
-      <section id="subjects" className="py-16 lg:py-24 bg-[#FAFAF8]">
+      <section className="py-16 lg:py-24 bg-white">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-14">
-            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">Learn Anything</h2>
-            <p className="mt-3 text-slate-500">From mathematics to programming, find the right tutor for every subject</p>
+          <motion.div {...fadeUp} className="text-center mb-14">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Learn any subject
+            </h2>
+            <p className="mt-3 text-slate-500">
+              From mathematics to programming, find the right tutor
+            </p>
           </motion.div>
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {subjects.map((s, i) => (
-              <motion.button key={i} initial={{ opacity: 0, scale: 0.95 }} whileInView={{ opacity: 1, scale: 1 }} viewport={{ once: true }} transition={{ delay: i * 0.05 }} onClick={() => handleCTA("/auth")} className="p-5 bg-white rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:shadow-lg hover:shadow-teal-500/5 text-center transition-all group">
+              <motion.button
+                key={i}
+                {...fadeUp}
+                transition={{ delay: i * 0.04 }}
+                onClick={() => handleCTA("/auth")}
+                className="p-5 bg-[#FAFAF8] rounded-2xl border border-stone-200/80 hover:border-teal-200 hover:bg-teal-50/50 text-center transition-all group"
+              >
                 <div className="text-3xl mb-2">{s.icon}</div>
                 <h3 className="text-sm font-bold text-slate-900">{s.name}</h3>
               </motion.button>
@@ -290,20 +704,91 @@ export default function Landing() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section id="faq" className="py-16 lg:py-24 bg-[#FAFAF8]">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div {...fadeUp} className="text-center mb-12">
+            <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+              Frequently asked questions
+            </h2>
+          </motion.div>
+          <div className="space-y-4">
+            {[
+              {
+                q: "How much do lessons cost?",
+                a: "Tutors set their own rates. You'll see the price before booking. There are no hidden fees. Trial lessons may be offered at a reduced rate by individual tutors.",
+              },
+              {
+                q: "How are tutors verified?",
+                a: "Every tutor submits their NID, educational certificates, and teaching credentials. Our team reviews each application before a tutor can accept students.",
+              },
+              {
+                q: "How do I book a lesson?",
+                a: "Find a tutor, check their availability, choose a date and time, and confirm. You'll receive a confirmation with all lesson details.",
+              },
+              {
+                q: "Can I cancel a booking?",
+                a: "Yes. You can cancel a booking up to 2 hours before the scheduled lesson. Check the tutor's cancellation policy for specifics.",
+              },
+              {
+                q: "Is my personal information safe?",
+                a: "Yes. NID documents, student cards, and other sensitive data are stored securely and never shown publicly. Only authorized administrators can access verification documents.",
+              },
+              {
+                q: "What does the AI assistant do?",
+                a: "The AI assistant can help you with explanations, practice questions, and study plans. It's a supplement to your tutor, not a replacement. Always verify AI-generated answers with your tutor or trusted sources.",
+              },
+              {
+                q: "Can I try before committing?",
+                a: "Yes. Many tutors offer trial lessons. You can also message a tutor before booking to make sure they're a good fit.",
+              },
+            ].map((faq, i) => (
+              <motion.div
+                key={i}
+                {...fadeUp}
+                transition={{ delay: i * 0.05 }}
+                className="bg-white rounded-xl border border-stone-200/80 p-5"
+              >
+                <div className="flex items-start gap-3">
+                  <HelpCircle className="w-5 h-5 text-teal-500 shrink-0 mt-0.5" />
+                  <div>
+                    <h3 className="text-sm font-bold text-slate-900 mb-1">
+                      {faq.q}
+                    </h3>
+                    <p className="text-sm text-slate-500 leading-relaxed">
+                      {faq.a}
+                    </p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-16 lg:py-24 bg-gradient-to-br from-teal-600 to-teal-700">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }}>
+          <motion.div {...fadeUp}>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-white leading-tight">
-              Your Learning Journey Starts with <span className="text-amber-300">One Conversation</span>
+              Start your learning journey
             </h2>
-            <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">Join students learning from real tutors through live, interactive classes.</p>
+            <p className="mt-6 text-lg text-teal-100 max-w-xl mx-auto">
+              Find a tutor, book your first lesson, and take the next step in
+              your learning.
+            </p>
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
-              <button onClick={() => handleCTA("/auth")} className="px-10 py-4 bg-white text-teal-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-teal-50 flex items-center gap-2.5 text-base active:scale-95">
-                Start Learning <ArrowRight className="w-5 h-5" />
+              <button
+                onClick={() => handleCTA("/auth")}
+                className="px-10 py-4 bg-white text-teal-700 font-bold rounded-2xl shadow-xl hover:shadow-2xl transition-all hover:bg-teal-50 flex items-center gap-2.5 text-base active:scale-95"
+              >
+                Get started <ArrowRight className="w-5 h-5" />
               </button>
-              <button onClick={() => handleCTA("/auth")} className="px-10 py-4 bg-teal-500/30 text-white font-semibold rounded-2xl border border-teal-400/30 hover:bg-teal-500/40 transition-all text-base">
-                Become a Tutor
+              <button
+                onClick={() => handleCTA("/auth")}
+                className="px-10 py-4 bg-teal-500/30 text-white font-semibold rounded-2xl border border-teal-400/30 hover:bg-teal-500/40 transition-all text-base"
+              >
+                Become a tutor
               </button>
             </div>
           </motion.div>
@@ -318,13 +803,24 @@ export default function Landing() {
               <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-teal-500 to-teal-600 flex items-center justify-center">
                 <GraduationCap className="w-4 h-4 text-white" />
               </div>
-              <span className="text-lg font-bold text-white">LiveClass</span>
+              <span className="text-lg font-bold text-white">
+                Virtual Tutor Pro
+              </span>
             </div>
-            <p className="text-sm">© 2025 LiveClass. Learn from real people. All rights reserved.</p>
+            <p className="text-sm">
+              © {new Date().getFullYear()} Virtual Tutor Pro. Learn from real
+              people. All rights reserved.
+            </p>
             <div className="flex items-center gap-6 text-sm">
-              <a href="#" className="hover:text-white transition-colors">Privacy</a>
-              <a href="#" className="hover:text-white transition-colors">Terms</a>
-              <a href="#" className="hover:text-white transition-colors">Support</a>
+              <a href="#" className="hover:text-white transition-colors">
+                Privacy
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Terms
+              </a>
+              <a href="#" className="hover:text-white transition-colors">
+                Support
+              </a>
             </div>
           </div>
         </div>

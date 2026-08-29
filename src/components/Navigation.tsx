@@ -27,20 +27,20 @@ import {
 
 const studentLinks = [
   { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-  { label: "Find Tutors", path: "/teachers", icon: Users },
-  { label: "My Lessons", path: "/lessons", icon: Video },
+  { label: "Find tutors", path: "/teachers", icon: Users },
+  { label: "Lessons", path: "/lessons", icon: Video },
   { label: "Calendar", path: "/calendar", icon: Calendar },
   { label: "Assignments", path: "/assignments", icon: ClipboardList },
   { label: "Messages", path: "/messages", icon: MessageCircle },
-  { label: "AI Assistant", path: "/ai-assistant", icon: Sparkles },
+  { label: "AI assistant", path: "/ai-assistant", icon: Sparkles },
 ];
 
 const teacherLinks = [
   { label: "Dashboard", path: "/teacher-dashboard", icon: LayoutDashboard },
-  { label: "My Students", path: "/teachers", icon: Users },
-  { label: "Schedule", path: "/calendar", icon: Calendar },
+  { label: "Students", path: "/teachers", icon: Users },
+  { label: "Calendar", path: "/calendar", icon: Calendar },
   { label: "Messages", path: "/messages", icon: MessageCircle },
-  { label: "Earnings", path: "/progress", icon: TrendingUp },
+  { label: "Progress", path: "/progress", icon: TrendingUp },
 ];
 
 export function Navigation() {
