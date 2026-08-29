@@ -18,6 +18,16 @@ export const listConversations = query({
 export const listMessages = query({
   args: { conversationId: v.string() },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    // Verify the user is a participant in this conversation
+    const conv = await ctx.db
+      .query("conversations")
+      .filter((q) => q.eq(q.field("_id"), args.conversationId))
+      .first();
+    if (!conv || !conv.participants.includes(userId as string)) {
+      throw new Error("Not authorized to view this conversation");
+    }
     return await ctx.db
       .query("messages")
       .filter((q) => q.eq(q.field("conversationId"), args.conversationId))
@@ -38,23 +48,33 @@ export const send = mutation({
     const user = await ctx.db.get(userId);
     if (!user) throw new Error("User not found");
 
-    await ctx.db.insert("messages", {
-      conversationId: args.conversationId,
-      senderId: userId as string,
-      senderName: user.name || "User",
-      text: args.text,
-      timestamp: Date.now(),
-      read: false,
-    });
-
-    // Update conversation - find it to get proper Id
+    // Verify sender is a participant in the conversation
     const conv = await ctx.db
       .query("conversations")
       .filter((q) => q.eq(q.field("_id"), args.conversationId))
       .first();
-    if (conv) {
+    if (!conv || !conv.participants.includes(userId as string)) {
+      throw new Error("Not authorized to send in this conversation");
+    }
+
+    // Validate message text
+    const trimmedText = args.text.trim();
+    if (trimmedText.length === 0) throw new Error("Message cannot be empty");
+    if (trimmedText.length > 5000) throw new Error("Message too long (max 5000 characters)");
+
+    await ctx.db.insert("messages", {
+      conversationId: args.conversationId,
+      senderId: userId as string,
+      senderName: user.name || "User",
+      text: trimmedText,
+      timestamp: Date.now(),
+      read: false,
+    });
+
+    // Update conversation - use the conv already fetched above
+    if (conv && "lastMessage" in conv) {
       await ctx.db.patch(conv._id, {
-        lastMessage: args.text,
+        lastMessage: trimmedText,
         lastMessageAt: Date.now(),
         lastSenderId: userId as string,
       });
@@ -72,6 +92,11 @@ export const createConversation = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+
+    // Prevent creating conversation with self
+    if (args.participantId === (userId as string)) {
+      throw new Error("Cannot create a conversation with yourself");
+    }
 
     // Check if conversation already exists
     const allConvos = await ctx.db.query("conversations").collect();

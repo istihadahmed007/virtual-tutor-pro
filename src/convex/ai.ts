@@ -18,13 +18,28 @@ export const listConversations = query({
 export const getConversation = query({
   args: { conversationId: v.string() },
   handler: async (ctx, args) => {
-    return await ctx.db.get(args.conversationId as any);
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const conv = await ctx.db.get(args.conversationId as any);
+    if (!conv) return null;
+    if (!('userId' in conv) || conv.userId !== (userId as string)) {
+      throw new Error("Not authorized");
+    }
+    return conv;
   },
 });
 
 export const listMessages = query({
   args: { conversationId: v.string() },
   handler: async (ctx, args) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    // Verify the user owns this conversation
+    const conv = await ctx.db.get(args.conversationId as any);
+    if (!conv || !('userId' in conv)) return [];
+    if (conv.userId !== (userId as string)) {
+      throw new Error("Not authorized");
+    }
     return await ctx.db
       .query("aiMessages")
       .withIndex("by_conversation", (q) =>
@@ -68,6 +83,13 @@ export const sendMessage = mutation({
       content: args.content,
       timestamp: Date.now(),
     });
+
+    // Verify ownership
+    const existingConv = await ctx.db.get(args.conversationId as any);
+    if (!existingConv || !('userId' in existingConv)) throw new Error("Conversation not found");
+    if (existingConv.userId !== (userId as string)) {
+      throw new Error("Not authorized");
+    }
 
     // Update conversation timestamp
     await ctx.db.patch(args.conversationId as any, {

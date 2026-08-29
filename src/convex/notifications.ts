@@ -29,9 +29,16 @@ export const getUnreadCount = query({
 });
 
 export const markAsRead = mutation({
-  args: { notificationId: v.string() },
+  args: { notificationId: v.id("notifications") },
   handler: async (ctx, args) => {
-    await ctx.db.patch(args.notificationId as any, { read: true });
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const notification = await ctx.db.get(args.notificationId);
+    if (!notification) throw new Error("Notification not found");
+    if (notification.userId !== (userId as string)) {
+      throw new Error("Not authorized");
+    }
+    await ctx.db.patch(args.notificationId, { read: true });
   },
 });
 
@@ -59,6 +66,13 @@ export const create = mutation({
     actionUrl: v.optional(v.string()),
   },
   handler: async (ctx, args) => {
+    // Validate inputs
+    if (args.title.length < 1 || args.title.length > 200) {
+      throw new Error("Title must be 1-200 characters");
+    }
+    if (args.message.length < 1 || args.message.length > 1000) {
+      throw new Error("Message must be 1-1000 characters");
+    }
     return await ctx.db.insert("notifications", {
       ...args,
       read: false,

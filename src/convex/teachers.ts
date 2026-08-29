@@ -18,6 +18,8 @@ export const list = query({
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
     return await ctx.db.query("teacherProfiles").collect();
   },
 });
@@ -248,6 +250,11 @@ export const submitForVerification = mutation({
     // Check NID is submitted
     if (!profile.nidNumber || !profile.nidFrontUrl || !profile.nidBackUrl) {
       throw new Error("NID verification documents are required");
+    }
+
+    // Check profile is complete enough
+    if (profile.profileCompletionPct < 50) {
+      throw new Error("Profile must be at least 50% complete to submit for verification");
     }
 
     await ctx.db.patch(profile._id, {

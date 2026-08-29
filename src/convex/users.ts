@@ -86,6 +86,16 @@ export const setRole = mutation({
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
     if (!userId) throw new Error("Not authenticated");
+    const user = await ctx.db.get(userId);
+    if (!user) throw new Error("User not found");
+    // Allow setting role only if not already set, or if admin
+    if (user.role && user.role !== args.role && user.role !== "admin") {
+      throw new Error("Cannot change role once set. Contact admin.");
+    }
+    // Prevent non-admins from setting admin role
+    if (args.role === "admin" && user.role !== "admin") {
+      throw new Error("Only admins can assign admin role");
+    }
     await ctx.db.patch(userId, { role: args.role });
   },
 });
@@ -219,6 +229,10 @@ export const getStudentProfile = query({
 export const listAll = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const user = await ctx.db.get(userId);
+    if (user?.role !== "admin") throw new Error("Unauthorized");
     return await ctx.db.query("users").collect();
   },
 });
@@ -226,6 +240,10 @@ export const listAll = query({
 export const getStats = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const user = await ctx.db.get(userId);
+    if (user?.role !== "admin") throw new Error("Unauthorized");
     const users = await ctx.db.query("users").collect();
     const teachers = await ctx.db.query("teacherProfiles").collect();
     const lessons = await ctx.db.query("lessons").collect();

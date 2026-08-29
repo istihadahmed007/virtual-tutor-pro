@@ -37,7 +37,6 @@ export const create = mutation({
     durationMinutes: v.number(),
     subject: v.string(),
     sessionType: v.string(),
-    price: v.number(),
   },
   handler: async (ctx, args) => {
     const userId = await getAuthUserId(ctx);
@@ -51,6 +50,43 @@ export const create = mutation({
       .filter((q) => q.eq(q.field("userId"), args.teacherId))
       .first();
     if (!teacherProfile) throw new Error("Teacher not found");
+    if (!teacherProfile.isAvailable) throw new Error("Teacher is not available");
+
+    // Resolve price server-side from teacher's profile
+    let price = teacherProfile.hourlyRate;
+    if (args.durationMinutes === 30 && teacherProfile.price30min) {
+      price = teacherProfile.price30min;
+    } else if (args.durationMinutes === 60 && teacherProfile.price60min) {
+      price = teacherProfile.price60min;
+    } else if (args.sessionType === "small-group" && teacherProfile.groupPrice) {
+      price = teacherProfile.groupPrice;
+    }
+    // Scale price if duration doesn't match standard
+    if (args.durationMinutes !== 30 && args.durationMinutes !== 60) {
+      price = Math.round((teacherProfile.hourlyRate / 60) * args.durationMinutes);
+    }
+
+    // Validate date is in the future
+    const bookingDate = new Date(args.date);
+    if (bookingDate.getTime() < Date.now()) {
+      throw new Error("Cannot book a session in the past");
+    }
+
+    // Check for double-booking
+    const existingBooking = await ctx.db
+      .query("bookings")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("teacherId"), args.teacherId),
+          q.eq(q.field("date"), args.date),
+          q.eq(q.field("timeSlot"), args.timeSlot),
+          q.neq(q.field("status"), "cancelled"),
+        ),
+      )
+      .first();
+    if (existingBooking) {
+      throw new Error("This time slot is already booked");
+    }
 
     const meetingCode = `BK-${Date.now().toString(36).toUpperCase()}`;
 
@@ -64,7 +100,7 @@ export const create = mutation({
       durationMinutes: args.durationMinutes,
       subject: args.subject,
       sessionType: args.sessionType,
-      price: args.price,
+      price,
       status: "pending",
       meetingCode,
       createdAt: Date.now(),

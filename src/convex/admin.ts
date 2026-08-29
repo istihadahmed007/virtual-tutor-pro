@@ -6,6 +6,11 @@ import { v } from "convex/values";
 export const getStats = query({
   args: {},
   handler: async (ctx) => {
+    const userId = await getAuthUserId(ctx);
+    if (!userId) throw new Error("Not authenticated");
+    const user = await ctx.db.get(userId);
+    if (user?.role !== "admin") throw new Error("Unauthorized");
+
     const users = await ctx.db.query("users").collect();
     const teachers = await ctx.db.query("teacherProfiles").collect();
     const students = await ctx.db.query("studentProfiles").collect();
