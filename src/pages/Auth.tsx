@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { InputOTP, InputOTPGroup, InputOTPSlot } from "@/components/ui/input-otp";
 import { useAuth } from "@/hooks/use-auth";
+import { useRecaptcha } from "@/hooks/use-recaptcha";
 import { LazyImage } from "@/components/images/LazyImage";
 import { AUTH_SIDE_IMAGE } from "@/lib/images";
 import logo from "@/assets/logo.svg";
@@ -22,10 +23,11 @@ import {
   BookOpen,
   Video,
   Star,
+  ShieldCheck,
 } from "lucide-react";
 import { Suspense, useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/_generated/api";
 
 interface AuthProps {
@@ -40,6 +42,8 @@ function resolveRedirectAfterAuth(
   return fallback;
 }
 
+type AuthStep = "role" | "signIn" | { email: string };
+
 function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const {
     isLoading: authLoading,
@@ -53,13 +57,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     redirectAfterAuth,
   );
   const setRole = useMutation(api.users.setRole);
+  const verifyRecaptcha = useAction(api.recaptcha.verify);
+  const { executeRecaptcha, isConfigured } = useRecaptcha();
 
-  const [step, setStep] = useState<"role" | "signIn" | { email: string }>(
-    "role",
-  );
+  const [step, setStep] = useState<AuthStep>("role");
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
@@ -76,24 +81,44 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     setStep("signIn");
   };
 
+  const verifyAndProceed = async (action: string) => {
+    if (!isConfigured) {
+      throw new Error(
+        "Security verification is not configured. Please contact support.",
+      );
+    }
+    setStatusMessage("Verifying...");
+    const token = await executeRecaptcha(action);
+    await verifyRecaptcha({ token, expectedAction: action });
+    setStatusMessage(null);
+  };
+
   const handleEmailSubmit = async (
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
+    setStatusMessage(null);
     try {
+      await verifyAndProceed("sign_in_email");
+
+      setStatusMessage("Sending verification code...");
       const formData = new FormData(event.currentTarget);
       await signIn("email-otp", formData);
       setStep({ email: formData.get("email") as string });
-      setIsLoading(false);
-    } catch (error) {
-      console.error("Email sign-in error:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "Failed to send verification code. Please try again.",
-      );
+      setStatusMessage(null);
+    } catch (err) {
+      console.error("Sign-in error:", err);
+      const msg =
+        err instanceof Error ? err.message : "Failed to send verification code.";
+      if (msg.includes("Security verification") || msg.includes("Verification failed") || msg.includes("couldn't verify") || msg.includes("not configured")) {
+        setError(msg);
+      } else {
+        setError(msg);
+      }
+      setStatusMessage(null);
+    } finally {
       setIsLoading(false);
     }
   };
@@ -104,12 +129,24 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     event.preventDefault();
     setIsLoading(true);
     setError(null);
+    setStatusMessage(null);
     try {
+      await verifyAndProceed("verify_otp");
+
+      setStatusMessage("Creating your account...");
       const formData = new FormData(event.currentTarget);
       await signIn("email-otp", formData);
       navigate(redirect);
-    } catch {
-      setError("The verification code you entered is incorrect.");
+    } catch (err) {
+      console.error("OTP verify error:", err);
+      const msg =
+        err instanceof Error ? err.message : "Verification failed.";
+      if (msg.includes("Security verification") || msg.includes("Verification failed") || msg.includes("couldn't verify") || msg.includes("not configured")) {
+        setError(msg);
+      } else {
+        setError("The verification code you entered is incorrect.");
+      }
+      setStatusMessage(null);
       setIsLoading(false);
       setOtp("");
     }
@@ -118,12 +155,13 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   const handleGuestLogin = async () => {
     setIsLoading(true);
     setError(null);
+    setStatusMessage(null);
     try {
       await signIn("anonymous");
       navigate(redirect);
-    } catch (error) {
+    } catch (err) {
       setError(
-        `Failed to sign in as guest: ${error instanceof Error ? error.message : "Unknown error"}`,
+        `Failed to sign in as guest: ${err instanceof Error ? err.message : "Unknown error"}`,
       );
       setIsLoading(false);
     }
@@ -179,14 +217,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <div className="flex justify-center">
                     <img
                       src={logo}
-                      alt="LiveClass"
+                      alt="Virtual Tutor Pro"
                       width={56}
                       height={56}
                       className="rounded-xl mb-4 mt-4 cursor-pointer"
                       onClick={() => navigate("/")}
                     />
                   </div>
-                  <CardTitle className="text-xl">Welcome to LiveClass</CardTitle>
+                  <CardTitle className="text-xl">Welcome to Virtual Tutor Pro</CardTitle>
                   <CardDescription>
                     How will you use the platform?
                   </CardDescription>
@@ -243,7 +281,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                   <div className="flex justify-center">
                     <img
                       src={logo}
-                      alt="LiveClass"
+                      alt="Virtual Tutor Pro"
                       width={56}
                       height={56}
                       className="rounded-xl mb-4 mt-4 cursor-pointer"
@@ -282,9 +320,26 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         )}
                       </Button>
                     </div>
-                    {error && (
-                      <p className="mt-2 text-sm text-red-500">{error}</p>
+
+                    {statusMessage && (
+                      <div className="mt-3 flex items-center gap-2 text-sm text-teal-600">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        {statusMessage}
+                      </div>
                     )}
+
+                    {error && (
+                      <div className="mt-2 p-2.5 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-sm text-red-600">{error}</p>
+                      </div>
+                    )}
+
+                    {!isConfigured && (
+                      <p className="mt-2 text-xs text-amber-600">
+                        Security verification is not configured. Contact support.
+                      </p>
+                    )}
+
                     <div className="mt-4">
                       <div className="relative">
                         <div className="absolute inset-0 flex items-center">
@@ -315,9 +370,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
             {typeof step === "object" && (
               <>
                 <CardHeader className="text-center mt-4">
+                  <div className="flex justify-center mb-2">
+                    <div className="w-10 h-10 rounded-full bg-teal-100 flex items-center justify-center">
+                      <Mail className="w-5 h-5 text-teal-600" />
+                    </div>
+                  </div>
                   <CardTitle>Check your email</CardTitle>
                   <CardDescription>
-                    We've sent a code to {step.email}
+                    We've sent a 6-digit code to <strong>{step.email}</strong>
                   </CardDescription>
                 </CardHeader>
                 <form onSubmit={handleOtpSubmit}>
@@ -350,11 +410,20 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                         </InputOTPGroup>
                       </InputOTP>
                     </div>
-                    {error && (
-                      <p className="mt-2 text-sm text-red-500 text-center">
-                        {error}
-                      </p>
+
+                    {statusMessage && (
+                      <div className="mt-3 flex items-center justify-center gap-2 text-sm text-teal-600">
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        {statusMessage}
+                      </div>
                     )}
+
+                    {error && (
+                      <div className="mt-2 p-2.5 rounded-lg bg-red-50 border border-red-200">
+                        <p className="text-sm text-red-600 text-center">{error}</p>
+                      </div>
+                    )}
+
                     <p className="text-sm text-muted-foreground text-center mt-4">
                       Didn't receive a code?{" "}
                       <Button
@@ -375,7 +444,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       {isLoading ? (
                         <>
                           <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
-                          Verifying...
+                          {statusMessage || "Verifying..."}
                         </>
                       ) : (
                         <>
@@ -398,16 +467,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
               </>
             )}
 
-            <div className="py-4 px-6 text-xs text-center text-muted-foreground bg-muted border-t rounded-b-lg">
-              Secured by{" "}
-              <a
-                href="https://freebuff.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline hover:text-primary transition-colors"
-              >
-                freebuff.com
-              </a>
+            <div className="py-4 px-6 text-xs text-center text-muted-foreground bg-muted border-t rounded-b-lg flex items-center justify-center gap-1.5">
+              <ShieldCheck className="w-3.5 h-3.5" />
+              Protected by Google reCAPTCHA
             </div>
           </Card>
         </div>

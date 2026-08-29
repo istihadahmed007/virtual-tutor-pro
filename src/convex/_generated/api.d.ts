@@ -20,6 +20,7 @@ import type * as lessons from "../lessons.js";
 import type * as messages from "../messages.js";
 import type * as notifications from "../notifications.js";
 import type * as progress from "../progress.js";
+import type * as recaptcha from "../recaptcha.js";
 import type * as reviews from "../reviews.js";
 import type * as sessions from "../sessions.js";
 import type * as studentProfiles from "../studentProfiles.js";
@@ -45,6 +46,7 @@ declare const fullApi: ApiFromModules<{
   messages: typeof messages;
   notifications: typeof notifications;
   progress: typeof progress;
+  recaptcha: typeof recaptcha;
   reviews: typeof reviews;
   sessions: typeof sessions;
   studentProfiles: typeof studentProfiles;
