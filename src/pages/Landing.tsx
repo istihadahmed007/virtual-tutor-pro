@@ -699,7 +699,7 @@ export default function Landing() {
                   12 templates · AI-powered · ATS-optimized · PDF export
                 </p>
                 <a
-                  href="/resume-builder"
+                  href="https://freebuff.com/web/project/orange-actors-crash"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mt-6 inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-violet-600/20 hover:shadow-xl hover:shadow-violet-600/30 transition-all active:scale-95 text-base"
