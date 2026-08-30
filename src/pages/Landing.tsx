@@ -27,6 +27,7 @@ import {
   HelpCircle,
   ArrowRightCircle,
   Sparkles,
+  FileText,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAuth } from "@/hooks/use-auth";
@@ -673,6 +674,47 @@ export default function Landing() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Resume Builder Promo */}
+      <section className="py-16 lg:py-24 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div
+            {...fadeUp}
+            className="relative overflow-hidden rounded-3xl border border-stone-200/80"
+            style={{
+              background: "linear-gradient(135deg, #faf5ff, #eef2ff)",
+            }}
+          >
+            <div className="flex flex-col md:flex-row items-center gap-8 p-8 md:p-12 lg:p-16">
+              <div className="flex-1 text-center md:text-left">
+                <h2 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-slate-900 leading-tight">
+                  Build your{' '}
+                  <span className="bg-gradient-to-r from-violet-600 to-indigo-600 bg-clip-text text-transparent">
+                    professional resume
+                  </span>
+                </h2>
+                <p className="mt-3 text-slate-500 max-w-md">
+                  12 templates · AI-powered · ATS-optimized · PDF export
+                </p>
+                <a
+                  href="/resume-builder"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="mt-6 inline-flex items-center gap-2 px-8 py-4 bg-gradient-to-r from-violet-600 to-indigo-600 text-white font-bold rounded-2xl shadow-lg shadow-violet-600/20 hover:shadow-xl hover:shadow-violet-600/30 transition-all active:scale-95 text-base"
+                >
+                  <FileText className="w-5 h-5" />
+                  Open Resume Builder
+                </a>
+              </div>
+              <div className="flex-shrink-0 hidden md:block">
+                <div className="w-32 h-32 lg:w-40 lg:h-40 rounded-3xl bg-gradient-to-br from-violet-100 to-indigo-100 flex items-center justify-center">
+                  <FileText className="w-16 h-16 lg:w-20 lg:h-20 text-violet-500" />
+                </div>
+              </div>
+            </div>
+          </motion.div>
         </div>
       </section>
 
