@@ -96,6 +96,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    // Capture form ref BEFORE any async work — React nulls currentTarget after await
+    const form = event.currentTarget;
+    if (!form) return;
     setIsLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -103,7 +106,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await verifyAndProceed("sign_in_email");
 
       setStatusMessage("Sending verification code...");
-      const formData = new FormData(event.currentTarget);
+      const formData = new FormData(form);
       await signIn("email-otp", formData);
       setStep({ email: formData.get("email") as string });
       setStatusMessage(null);
@@ -111,11 +114,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       console.error("Sign-in error:", err);
       const msg =
         err instanceof Error ? err.message : "Failed to send verification code.";
-      if (msg.includes("Security verification") || msg.includes("Verification failed") || msg.includes("couldn't verify") || msg.includes("not configured")) {
-        setError(msg);
-      } else {
-        setError(msg);
-      }
+      setError(msg);
       setStatusMessage(null);
     } finally {
       setIsLoading(false);
@@ -126,6 +125,9 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
+    // Capture form ref BEFORE any async work — React nulls currentTarget after await
+    const form = event.currentTarget;
+    if (!form) return;
     setIsLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -133,18 +135,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await verifyAndProceed("verify_otp");
 
       setStatusMessage("Creating your account...");
-      const formData = new FormData(event.currentTarget);
+      const formData = new FormData(form);
       await signIn("email-otp", formData);
       navigate(redirect);
     } catch (err) {
       console.error("OTP verify error:", err);
       const msg =
         err instanceof Error ? err.message : "Verification failed.";
-      if (msg.includes("Security verification") || msg.includes("Verification failed") || msg.includes("couldn't verify") || msg.includes("not configured")) {
-        setError(msg);
-      } else {
-        setError("The verification code you entered is incorrect.");
-      }
+      setError(msg);
       setStatusMessage(null);
       setIsLoading(false);
       setOtp("");
