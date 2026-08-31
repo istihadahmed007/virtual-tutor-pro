@@ -25,6 +25,7 @@ const TeacherDashboard = lazy(() => import("./pages/TeacherDashboard.tsx"));
 const MessagesPage = lazy(() => import("./pages/MessagesPage.tsx"));
 const CommunityPage = lazy(() => import("./pages/CommunityPage.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const ResumeBuilder = lazy(() => import("./pages/ResumeBuilder.tsx"));
 
 function RouteLoading() {
   return (
@@ -106,6 +107,7 @@ createRoot(document.getElementById("root")!).render(
               <Route path="/teacher-dashboard" element={<RequireAuth><AppShell><TeacherDashboard /></AppShell></RequireAuth>} />
               <Route path="/messages" element={<RequireAuth><AppShell><MessagesPage /></AppShell></RequireAuth>} />
               <Route path="/community" element={<RequireAuth><AppShell><CommunityPage /></AppShell></RequireAuth>} />
+              <Route path="/resume-builder" element={<ResumeBuilder />} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </Suspense>

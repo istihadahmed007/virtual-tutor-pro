@@ -41,7 +41,39 @@ const schema = defineSchema(
           sms: v.boolean(),
         }),
       ),
+      // Password auth
+      passwordHash: v.optional(v.string()),
+      emailVerified: v.optional(v.boolean()),
+      accountStatus: v.optional(
+        v.union(
+          v.literal("active"),
+          v.literal("suspended"),
+          v.literal("pending_verification"),
+        ),
+      ),
+      lastLoginAt: v.optional(v.number()),
+      loginAttempts: v.optional(v.number()),
+      lockedUntil: v.optional(v.number()),
     }).index("email", ["email"]),
+
+    // ─── Email Verification Tokens ─────────────────────
+    emailVerifications: defineTable({
+      userId: v.string(),
+      token: v.string(),
+      email: v.string(),
+      expiresAt: v.number(),
+      used: v.boolean(),
+    }).index("by_token", ["token"])
+      .index("by_user", ["userId"]),
+
+    // ─── Password Reset Tokens ─────────────────────────
+    passwordResets: defineTable({
+      userId: v.string(),
+      token: v.string(),
+      expiresAt: v.number(),
+      used: v.boolean(),
+    }).index("by_token", ["token"])
+      .index("by_user", ["userId"]),
 
     // ─── Student Profiles ────────────────────────────────
     studentProfiles: defineTable({
