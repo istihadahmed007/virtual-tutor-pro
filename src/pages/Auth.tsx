@@ -96,9 +96,22 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    // Capture form ref BEFORE any async work — React nulls currentTarget after await
+    // Capture form ref AND extract email BEFORE any async work.
+    // React nulls currentTarget after await, and disabled inputs
+    // are excluded from FormData — so we must grab everything first.
     const form = event.currentTarget;
     if (!form) return;
+
+    const formData = new FormData(form);
+    const rawEmail = formData.get("email");
+    if (typeof rawEmail !== "string" || !rawEmail.trim()) {
+      setError("Please enter a valid email address.");
+      return;
+    }
+    const email = rawEmail.trim().toLowerCase();
+    // Overwrite the FormData value with the normalised email
+    formData.set("email", email);
+
     setIsLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -106,9 +119,8 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await verifyAndProceed("sign_in_email");
 
       setStatusMessage("Sending verification code...");
-      const formData = new FormData(form);
       await signIn("email-otp", formData);
-      setStep({ email: formData.get("email") as string });
+      setStep({ email });
       setStatusMessage(null);
     } catch (err) {
       console.error("Sign-in error:", err);
@@ -125,9 +137,26 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
     event: React.FormEvent<HTMLFormElement>,
   ) => {
     event.preventDefault();
-    // Capture form ref BEFORE any async work — React nulls currentTarget after await
+    // Capture form ref BEFORE any async work
     const form = event.currentTarget;
     if (!form) return;
+
+    // Extract FormData and validate BEFORE async work
+    const formData = new FormData(form);
+    const email = formData.get("email");
+    const code = formData.get("code");
+    if (typeof email !== "string" || !email.trim()) {
+      setError("Missing email. Please go back and try again.");
+      return;
+    }
+    if (typeof code !== "string" || code.trim().length !== 6) {
+      setError("Please enter the 6-digit verification code.");
+      return;
+    }
+    // Ensure normalised values
+    formData.set("email", email.trim().toLowerCase());
+    formData.set("code", code.trim());
+
     setIsLoading(true);
     setError(null);
     setStatusMessage(null);
@@ -135,7 +164,6 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
       await verifyAndProceed("verify_otp");
 
       setStatusMessage("Creating your account...");
-      const formData = new FormData(form);
       await signIn("email-otp", formData);
       navigate(redirect);
     } catch (err) {

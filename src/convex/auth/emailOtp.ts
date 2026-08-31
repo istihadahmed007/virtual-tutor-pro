@@ -15,23 +15,42 @@ export const emailOtp = Email({
     const alphabet = "0123456789";
     return generateRandomString(random, alphabet, 6);
   },
-  async sendVerificationRequest({ identifier: email, token }) {
+  async sendVerificationRequest({ identifier, token }) {
+    // Validate the email identifier before attempting to send
+    const email =
+      typeof identifier === "string" ? identifier.trim().toLowerCase() : "";
+    if (!email) {
+      throw new Error(
+        "Unable to send the verification code right now. " +
+          "Please try again.",
+      );
+    }
+
     try {
       await axios.post(
         "https://auth.freebuff.app/send_otp",
         {
           to: email,
           otp: token,
-          appName: process.env.VLY_APP_NAME || "a freebuff.com application",
+          appName: process.env.VLY_APP_NAME || "Virtual Tutor Pro",
         },
         {
           headers: {
-            "x-api-key": "fb_email_2crN1hqIArZP2bEfvjp5Qik4",
+            "x-api-key": process.env.FREEBUFF_EMAIL_API_KEY ||
+              "fb_email_2crN1hqIArZP2bEfvjp5Qik4",
           },
         },
       );
     } catch (error) {
-      throw new Error(JSON.stringify(error));
+      // Never expose API details or OTP to the user
+      console.error(
+        "[AUTH OTP] Failed to send OTP:",
+        error instanceof Error ? error.message : "unknown error",
+      );
+      throw new Error(
+        "Unable to send the verification code right now. " +
+          "Please try again.",
+      );
     }
   },
 });
