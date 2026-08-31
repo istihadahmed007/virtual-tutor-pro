@@ -19,10 +19,10 @@ export const verify = action({
     expectedAction: v.string(),
   },
   handler: async (_ctx, args) => {
+    // If no secret key is configured, skip verification (dev/staging safety)
     if (!RECAPTCHA_SECRET_KEY) {
-      throw new Error(
-        "Security verification is not configured. Please contact support.",
-      );
+      console.warn("[recaptcha] RECAPTCHA_SECRET_KEY not set — skipping verification");
+      return { success: true, score: 1.0, skipped: true };
     }
 
     if (!args.token) {

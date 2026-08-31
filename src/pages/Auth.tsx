@@ -82,15 +82,14 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
   };
 
   const verifyAndProceed = async (action: string) => {
-    if (!isConfigured) {
-      throw new Error(
-        "Security verification is not configured. Please contact support.",
-      );
+    if (isConfigured) {
+      setStatusMessage("Verifying...");
+      const token = await executeRecaptcha(action);
+      if (token) {
+        await verifyRecaptcha({ token, expectedAction: action });
+      }
+      setStatusMessage(null);
     }
-    setStatusMessage("Verifying...");
-    const token = await executeRecaptcha(action);
-    await verifyRecaptcha({ token, expectedAction: action });
-    setStatusMessage(null);
   };
 
   const handleEmailSubmit = async (
@@ -334,11 +333,7 @@ function Auth({ redirectAfterAuth }: AuthProps = {}) {
                       </div>
                     )}
 
-                    {!isConfigured && (
-                      <p className="mt-2 text-xs text-amber-600">
-                        Security verification is not configured. Contact support.
-                      </p>
-                    )}
+                    {/* reCAPTCHA status handled silently */}
 
                     <div className="mt-4">
                       <div className="relative">

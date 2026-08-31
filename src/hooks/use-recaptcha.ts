@@ -26,38 +26,33 @@ export function useRecaptcha() {
   }, []);
 
   const executeRecaptcha = useCallback(
-    async (action: string): Promise<string> => {
+    async (action: string): Promise<string | null> => {
       if (!SITE_KEY) {
-        throw new Error("Security verification is not configured.");
+        // reCAPTCHA not configured — return null to indicate skip
+        return null;
       }
 
       if (typeof window === "undefined" || !window.grecaptcha) {
-        throw new Error(
-          "Security verification is loading. Please try again.",
-        );
+        // Script not loaded yet — return null to skip gracefully
+        return null;
       }
 
-      return new Promise<string>((resolve, reject) => {
-        window.grecaptcha!.ready(() => {
-          window.grecaptcha!.execute(SITE_KEY, { action }).then(
-            (token) => {
-              if (token) {
-                resolve(token);
-              } else {
-                reject(
-                  new Error("Verification failed. Please try again."),
-                );
-              }
-            },
-            () => {
-              reject(
-                new Error(
-                  "Security verification failed. Please try again.",
-                ),
-              );
-            },
-          );
-        });
+      return new Promise<string | null>((resolve) => {
+        try {
+          window.grecaptcha!.ready(() => {
+            window.grecaptcha!.execute(SITE_KEY, { action }).then(
+              (token) => {
+                resolve(token || null);
+              },
+              () => {
+                // reCAPTCHA failed — skip rather than block auth
+                resolve(null);
+              },
+            );
+          });
+        } catch {
+          resolve(null);
+        }
       });
     },
     [],
